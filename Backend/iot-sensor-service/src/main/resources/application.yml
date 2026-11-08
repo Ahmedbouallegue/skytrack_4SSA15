@@ -1,0 +1,28 @@
+server:
+  port: ${SERVER_PORT:8084}
+
+spring:
+  application:
+    name: iot-sensor-service
+  jackson:
+    default-property-inclusion: non_null
+
+influx:
+  url: ${INFLUX_URL:http://localhost:8086}
+  org: ${INFLUX_ORG:skytrack}
+  bucket: ${INFLUX_BUCKET:iot_sensor}
+  token: ${INFLUX_TOKEN:}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html

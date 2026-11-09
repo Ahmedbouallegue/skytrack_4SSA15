@@ -1,0 +1,43 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: alert-notification-service
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27018/skytrack_alerts}
+      auto-index-creation: true
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            connect-timeout: 2000
+            read-timeout: 5000
+
+# URLs of the services this one calls (OpenFeign)
+clients:
+  location-service:
+    url: ${LOCATION_SERVICE_URL:http://localhost:8081}
+  user-service:
+    url: ${USER_SERVICE_URL:http://localhost:8080}
+
+skytrack:
+  # Allowed origin for the Angular frontend (no API gateway)
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200}
+  # When true, cityId / userId are checked against Location / User services.
+  # Set REMOTE_CHECKS_ENABLED=false to work on this service while the others are not running.
+  remote-checks:
+    enabled: ${REMOTE_CHECKS_ENABLED:true}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html

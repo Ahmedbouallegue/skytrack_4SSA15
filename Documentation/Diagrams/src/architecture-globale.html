@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>SkyTrack — Architecture globale</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* Source of Documentation/Diagrams/architecture-globale.pdf
+     Re-export: open in Edge/Chrome → Imprimer → Enregistrer en PDF (A4 paysage, marges : aucune) */
+  @page { size: A4 landscape; margin: 0; }
+  :root {
+    --navy: #0f1e33; --blue: #2563a6; --sky: #7db8e8; --bg: #f5f7f6; --alt: #e6edf3;
+    --ink: #0f1e33; --ink2: #4a5568; --ink3: #5f6b79; --line: #c8d5e3;
+  }
+  * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  html, body { margin: 0; background: #fff; color: var(--ink); font-family: Inter, Arial, sans-serif; }
+  .page {
+    width: 297mm; height: 210mm; padding: 12mm 15mm 10mm;
+    display: flex; flex-direction: column; overflow: hidden;
+    page-break-after: always; break-after: page; background: var(--bg);
+  }
+  .page:last-child { page-break-after: auto; break-after: auto; }
+  h1, h2, h3 { font-family: "Space Grotesk", Inter, Arial, sans-serif; margin: 0; letter-spacing: -0.01em; }
+  .eyebrow { font-size: 9pt; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--blue); }
+  .head { display: flex; justify-content: space-between; align-items: flex-end; gap: 10mm; margin-bottom: 5mm; }
+  .head h2 { font-size: 21pt; margin-top: 1mm; }
+  .head p { margin: 1.5mm 0 0; font-size: 10pt; color: var(--ink2); max-width: 170mm; }
+  .foot { margin-top: auto; padding-top: 3mm; display: flex; justify-content: space-between; font-size: 8pt; color: var(--ink3); }
+  svg { display: block; width: 100%; }
+  svg text { font-family: Inter, Arial, sans-serif; }
+  .t-title { font-family: "Space Grotesk", Inter, Arial, sans-serif; font-weight: 700; }
+
+  /* Cover */
+  .cover { background: var(--navy); color: #f5f7f6; padding: 22mm 22mm 14mm; }
+  .cover .eyebrow { color: var(--sky); }
+  .cover h1 { font-size: 46pt; line-height: 1.02; margin-top: 4mm; }
+  .cover .sub { font-size: 15pt; color: #c9d6e6; margin-top: 4mm; }
+  .cover .toc { margin-top: 14mm; display: grid; grid-template-columns: repeat(3, 1fr); gap: 5mm; }
+  .cover .toc div { padding: 5mm 6mm; border-radius: 4mm; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); }
+  .cover .toc b { display: block; font-family: "Space Grotesk", Inter, sans-serif; font-size: 13pt; margin-top: 1.5mm; }
+  .cover .toc span { font-size: 9pt; color: #aebbd0; }
+  .cover .toc .n { font-size: 9pt; color: var(--sky); font-weight: 600; }
+  .cover .team { margin-top: auto; font-size: 10pt; color: #c9d6e6; }
+  .cover .team b { color: #fff; }
+  .cover .foot { color: #8fa1b8; }
+
+  /* Cards under diagrams */
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4mm; margin-top: 4mm; }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 3mm; padding: 3.5mm 4.5mm; }
+  .card h3 { font-size: 11pt; margin-bottom: 1.2mm; }
+  .card p { margin: 0; font-size: 9pt; color: var(--ink2); line-height: 1.45; }
+
+  /* Docker page */
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3.5mm; }
+  .ctr { background: #fff; border: 1px solid var(--line); border-radius: 3mm; padding: 3.2mm 4mm; }
+  .ctr h3 { font-size: 11pt; display: flex; justify-content: space-between; align-items: baseline; }
+  .ctr .who { font-size: 8pt; color: var(--ink3); font-weight: 500; font-family: Inter, sans-serif; }
+  .row { display: flex; align-items: center; gap: 2.5mm; margin-top: 2mm; font-size: 8.8pt; }
+  .pill { display: inline-block; padding: .6mm 2.2mm; border-radius: 10mm; font-family: "JetBrains Mono", monospace; font-size: 8pt; white-space: nowrap; }
+  .svc { background: #e8f0f9; color: #1d4f86; }
+  .pg { background: #e8f0f9; color: #1d4f86; border: 1px solid #b9cfe8; }
+  .mg { background: #e6f4ea; color: #17673a; border: 1px solid #b7dcc4; }
+  .ix { background: #f1eafb; color: #5b3a99; border: 1px solid #d5c6ef; }
+  .inf { background: var(--alt); color: var(--ink); }
+  .ctr .img { font-family: "JetBrains Mono", monospace; font-size: 7.6pt; color: var(--ink3); }
+  .net { margin-top: 4mm; padding: 3mm 4.5mm; border: 1.5px dashed var(--blue); border-radius: 3mm; font-size: 9pt; color: var(--ink2); background: #f3f7fc; }
+  .net b { color: var(--blue); }
+  .note { font-size: 8pt; color: var(--ink3); margin-top: 2.5mm; }
+</style>
+</head>
+<body>
+
+<!-- ============================ 1. COVER ============================ -->
+<section class="page cover">
+  <div class="eyebrow">Documentation · Validation 1</div>
+  <h1>SkyTrack<br>Architecture globale</h1>
+  <div class="sub">Plateforme de surveillance et d’analyse météorologique en microservices</div>
+  <div class="toc">
+    <div><span class="n">01</span><b>Vue d’ensemble</b><span>Clients, frontend, API Gateway, 6 microservices, bases de données et services transverses</span></div>
+    <div><span class="n">02</span><b>Communication inter-services</b><span>Appels synchrones OpenFeign, identifiants échangés, tolérance aux pannes</span></div>
+    <div><span class="n">03</span><b>Déploiement Docker</b><span>Conteneurs, ports et réseau docker-compose</span></div>
+  </div>
+  <div class="team"><b>Équipe :</b> Med Dhia Allagui · Yasmine Fehri · Ahmed Bouallegue · Abdallah Grissa · Yassine Wesslati · Salim Khaldi</div>
+  <div class="foot"><span>SkyTrack · Architecture globale</span><span>Novembre 2026</span></div>
+</section>
+
+<!-- ============================ 2. OVERVIEW ============================ -->
+<section class="page">
+  <div class="head">
+    <div>
+      <div class="eyebrow">01 · Vue d’ensemble</div>
+      <h2>Architecture globale</h2>
+      <p>Tout le trafic externe entre par l’API Gateway. Chaque microservice possède sa propre base de données ; aucune base n’est partagée. Les appels entre services sont détaillés page 02.</p>
+    </div>
+  </div>
+
+  <svg viewBox="0 0 1500 930" role="img" aria-label="Diagramme d’architecture globale de SkyTrack">
+    <defs>
+      <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4a5568"/></marker>
+      <marker id="arrB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2563a6"/></marker>
+    </defs>
+
+    <!-- Docker boundary -->
+    <rect x="515" y="14" width="815" height="846" rx="18" fill="#f3f7fc" stroke="#2563a6" stroke-width="2" stroke-dasharray="9 7"/>
+    <text x="535" y="42" font-size="15" font-weight="700" fill="#2563a6">Docker · docker-compose</text>
+    <text x="1310" y="42" font-size="12" fill="#4a5568" text-anchor="end">réseau skytrack-net</text>
+
+    <!-- Transverse services -->
+    <g>
+      <rect x="540" y="60" width="160" height="80" rx="12" fill="#e6edf3" stroke="#b9c8d8"/>
+      <text x="620" y="94" font-size="16" class="t-title" text-anchor="middle" fill="#0f1e33">Keycloak</text>
+      <text x="620" y="116" font-size="12" text-anchor="middle" fill="#4a5568">authentification · JWT</text>
+      <rect x="760" y="60" width="130" height="80" rx="12" fill="#e6edf3" stroke="#b9c8d8"/>
+      <text x="825" y="94" font-size="16" class="t-title" text-anchor="middle" fill="#0f1e33">Eureka</text>
+      <text x="825" y="116" font-size="12" text-anchor="middle" fill="#4a5568">découverte</text>
+      <rect x="910" y="60" width="130" height="80" rx="12" fill="#e6edf3" stroke="#b9c8d8"/>
+      <text x="975" y="94" font-size="16" class="t-title" text-anchor="middle" fill="#0f1e33">Config Server</text>
+      <text x="975" y="116" font-size="12" text-anchor="middle" fill="#4a5568">configuration</text>
+      <text x="1110" y="94" font-size="13" font-weight="600" fill="#4a5568">Services transverses</text>
+      <text x="1110" y="114" font-size="12" fill="#5f6b79">utilisés par tous les</text>
+      <text x="1110" y="130" font-size="12" fill="#5f6b79">microservices</text>
+
+      <line x1="620" y1="180" x2="620" y2="142" stroke="#4a5568" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arr)"/>
+      <text x="630" y="166" font-size="11" fill="#4a5568">valide le JWT</text>
+      <line x1="825" y1="180" x2="825" y2="142" stroke="#4a5568" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arr)"/>
+      <text x="835" y="166" font-size="11" fill="#4a5568">enregistrement</text>
+      <line x1="975" y1="142" x2="975" y2="180" stroke="#4a5568" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arr)"/>
+      <text x="985" y="166" font-size="11" fill="#4a5568">configuration</text>
+    </g>
+
+    <!-- API Gateway -->
+    <rect x="540" y="180" width="160" height="656" rx="14" fill="#0f1e33"/>
+    <text x="620" y="478" font-size="20" class="t-title" text-anchor="middle" fill="#ffffff">API Gateway</text>
+    <text x="620" y="502" font-size="12.5" text-anchor="middle" fill="#c9d6e6">Spring Cloud Gateway</text>
+    <text x="620" y="532" font-size="11.5" text-anchor="middle" fill="#7db8e8">point d’entrée unique</text>
+    <text x="620" y="550" font-size="11.5" text-anchor="middle" fill="#7db8e8">routage · vérification JWT</text>
+
+    <!-- Microservices + databases (y = 180 + i*112) -->
+    <g font-size="13">
+      <!-- 1 User -->
+      <line x1="700" y1="228" x2="758" y2="228" stroke="#4a5568" stroke-width="1.6" marker-end="url(#arr)"/>
+      <rect x="760" y="180" width="280" height="96" rx="12" fill="#fff" stroke="#2563a6" stroke-width="1.6"/>
+      <text x="780" y="214" font-size="16.5" class="t-title" fill="#0f1e33">1 · User Service</text>
+      <text x="780" y="238" fill="#2563a6" font-weight="600">ASP.NET Core (.NET) · :8080</text>
+      <text x="780" y="260" font-size="12" fill="#5f6b79">User N..1 Role</text>
+      <line x1="1040" y1="232" x2="1108" y2="232" stroke="#4a5568" stroke-width="1.6" marker-end="url(#arr)"/>
+
+      <!-- 2 Location -->
+      <line x1="700" y1="340" x2="758" y2="340" stroke="#4a5568" stroke-width="1.6" marker-end="url(#arr)"/>
+      <rect x="760" y="292" width="280" height="96" rx="12" fill="#fff" stroke="#2563a6" stroke-width="1.6"/>
+      <text x="780" y="326" font-size="16.5" class="t-title" fill="#0f1e33">2 · Location Service</text>
+      <text x="780" y="350" fill="#2563a6" font-weight="600">Spring Boot · :8081</text>
+      <text x="780" y="372" font-size="12" fill="#5f6b79">City N..1 Region</text>
+      <line x1="1040" y1="344" x2="1108" y2="344" stroke="#4a5568" stroke-width="1.6" marker-end="url(#arr)"/>
+
+      <!-- 3 Forecast -->
+      <line x1="700" y1="452" x2="758" y2="452" stroke="#4a5568" stroke-width="1.6" marker-end="url(#arr)"/>
+      <rect x="760" y="404" width="280" height="96" rx="12" fill="#fff" stroke="#2563a6" stroke-width="1.6"/>
+      <text x="780" y="438" font-size="16.5" class="t-title" fill="#0f1e33">3 · Forecast Service</text>
+      <text x="780" y="462" fill="#2563a6" font-weight="600">Spring Boot · :8082</text>
+      <text x="780" y="484" font-size="12" fill="#5f6b79">Forecast ⊃ WeatherDetail (1..1)</text>
+      <line x1="1040" y1="456" x2="1108" y2="456" stroke="#4a5568" stroke-width="1.6" marker-end="url(#arr)"/>
+
+      <!-- 4 Alert -->
+      <line x1="700" y1="564" x2="758" y2="564" stroke="#4a5568" stroke-width="1.6" marker-end="url(#arr)"/>
+      <rect x="760" y="516" width="280" height="96" rx="12" fill="#fff" stroke="#2563a6" stroke-width="1.6"/>
+      <text x="780" y="550" font-size="16.5" class="t-title" fill="#0f1e33">4 · Alert &amp; Notification</text>
+      <text x="780" y="574" fill="#2563a6" font-weight="600">Spring Boot · :8083</text>
+      <text x="780" y="596" font-size="12" fill="#5f6b79">Alert 1..* Notification</text>
+      <line x1="1040" y1="568" x2="1108" y2="568" stroke="#4a5568" stroke-width="1.6" marker-end="url(#arr)"/>
+
+      <!-- 5 IoT -->
+      <line x1="700" y1="676" x2="758" y2="676" stroke="#4a5568" stroke-width="1.6" marker-end="url(#arr)"/>
+      <rect x="760" y="628" width="280" height="96" rx="12" fill="#fff" stroke="#2563a6" stroke-width="1.6"/>
+      <text x="780" y="662" font-size="16.5" class="t-title" fill="#0f1e33">5 · IoT Sensor Service</text>
+      <text x="780" y="686" fill="#2563a6" font-weight="600">Spring Boot · :8084</text>
+      <text x="780" y="708" font-size="12" fill="#5f6b79">Station 1..* SensorMeasurement</text>
+      <line x1="1040" y1="680" x2="1108" y2="680" stroke="#4a5568" stroke-width="1.6" marker-end="url(#arr)"/>
+
+      <!-- 6 Analytics -->
+      <line x1="700" y1="788" x2="758" y2="788" stroke="#4a5568" stroke-width="1.6" marker-end="url(#arr)"/>
+      <rect x="760" y="740" width="280" height="96" rx="12" fill="#fff" stroke="#2563a6" stroke-width="1.6"/>
+      <text x="780" y="774" font-size="16.5" class="t-title" fill="#0f1e33">6 · Analytics &amp; Preferences</text>
+      <text x="780" y="798" fill="#2563a6" font-weight="600">Spring Boot · :8085</text>
+      <text x="780" y="820" font-size="12" fill="#5f6b79">HistoricalLog · UserPreference</text>
+      <line x1="1040" y1="776" x2="1108" y2="776" stroke="#4a5568" stroke-width="1.6" marker-end="url(#arr)"/>
+      <line x1="1040" y1="800" x2="1108" y2="800" stroke="#4a5568" stroke-width="1.6" marker-end="url(#arr)"/>
+    </g>
+
+    <!-- Database cylinders -->
+    <g font-size="12.5" text-anchor="middle">
+      <!-- PostgreSQL user -->
+      <path d="M1110,198 V262 A95,12 0 0 0 1300,262 V198" fill="#e8f0f9" stroke="#2563a6" stroke-width="1.5"/>
+      <ellipse cx="1205" cy="198" rx="95" ry="12" fill="#f4f8fc" stroke="#2563a6" stroke-width="1.5"/>
+      <text x="1205" y="236" font-weight="700" fill="#1d4f86">PostgreSQL</text>
+      <text x="1205" y="255" fill="#4a5568">:5432 · users, roles</text>
+      <!-- PostgreSQL location -->
+      <path d="M1110,310 V374 A95,12 0 0 0 1300,374 V310" fill="#e8f0f9" stroke="#2563a6" stroke-width="1.5"/>
+      <ellipse cx="1205" cy="310" rx="95" ry="12" fill="#f4f8fc" stroke="#2563a6" stroke-width="1.5"/>
+      <text x="1205" y="348" font-weight="700" fill="#1d4f86">PostgreSQL</text>
+      <text x="1205" y="367" fill="#4a5568">:5433 · cities, regions</text>
+      <!-- Mongo forecast -->
+      <path d="M1110,422 V486 A95,12 0 0 0 1300,486 V422" fill="#e6f4ea" stroke="#1f8a4c" stroke-width="1.5"/>
+      <ellipse cx="1205" cy="422" rx="95" ry="12" fill="#f2faf4" stroke="#1f8a4c" stroke-width="1.5"/>
+      <text x="1205" y="460" font-weight="700" fill="#17673a">MongoDB</text>
+      <text x="1205" y="479" fill="#4a5568">:27017 · forecasts</text>
+      <!-- Mongo alert -->
+      <path d="M1110,534 V598 A95,12 0 0 0 1300,598 V534" fill="#e6f4ea" stroke="#1f8a4c" stroke-width="1.5"/>
+      <ellipse cx="1205" cy="534" rx="95" ry="12" fill="#f2faf4" stroke="#1f8a4c" stroke-width="1.5"/>
+      <text x="1205" y="572" font-weight="700" fill="#17673a">MongoDB</text>
+      <text x="1205" y="591" fill="#4a5568">:27018 · alerts, notifications</text>
+      <!-- Influx iot -->
+      <path d="M1110,646 V710 A95,12 0 0 0 1300,710 V646" fill="#f1eafb" stroke="#7b4fc4" stroke-width="1.5"/>
+      <ellipse cx="1205" cy="646" rx="95" ry="12" fill="#f8f4fd" stroke="#7b4fc4" stroke-width="1.5"/>
+      <text x="1205" y="684" font-weight="700" fill="#5b3a99">InfluxDB</text>
+      <text x="1205" y="703" fill="#4a5568">:8086 · séries temporelles</text>
+      <!-- Analytics: Influx + Mongo -->
+      <path d="M1110,758 V822 A45,10 0 0 0 1200,822 V758" fill="#f1eafb" stroke="#7b4fc4" stroke-width="1.5"/>
+      <ellipse cx="1155" cy="758" rx="45" ry="10" fill="#f8f4fd" stroke="#7b4fc4" stroke-width="1.5"/>
+      <text x="1155" y="792" font-size="11.5" font-weight="700" fill="#5b3a99">InfluxDB</text>
+      <text x="1155" y="810" font-size="11" fill="#4a5568">:8087</text>
+      <path d="M1210,758 V822 A45,10 0 0 0 1300,822 V758" fill="#e6f4ea" stroke="#1f8a4c" stroke-width="1.5"/>
+      <ellipse cx="1255" cy="758" rx="45" ry="10" fill="#f2faf4" stroke="#1f8a4c" stroke-width="1.5"/>
+      <text x="1255" y="792" font-size="11.5" font-weight="700" fill="#17673a">MongoDB</text>
+      <text x="1255" y="810" font-size="11" fill="#4a5568">:27019</text>
+    </g>
+
+    <!-- Frontend -->
+    <rect x="290" y="430" width="180" height="120" rx="14" fill="#2563a6"/>
+    <text x="380" y="474" font-size="19" class="t-title" text-anchor="middle" fill="#fff">Frontend</text>
+    <text x="380" y="498" font-size="13" text-anchor="middle" fill="#e2eefc">Angular 21 · :4200</text>
+    <text x="380" y="520" font-size="11.5" text-anchor="middle" fill="#bcd6f2">front-office + back-office</text>
+    <line x1="470" y1="490" x2="538" y2="490" stroke="#2563a6" stroke-width="2" marker-end="url(#arrB)"/>
+    <text x="504" y="480" font-size="11" font-weight="600" text-anchor="middle" fill="#2563a6">REST</text>
+    <text x="504" y="510" font-size="10.5" text-anchor="middle" fill="#2563a6">+ JWT</text>
+    <!-- Frontend → Keycloak -->
+    <path d="M380,430 V100 H538" fill="none" stroke="#2563a6" stroke-width="1.6" stroke-dasharray="6 5" marker-end="url(#arrB)"/>
+    <text x="390" y="250" font-size="11.5" font-weight="600" fill="#2563a6">connexion</text>
+    <text x="390" y="266" font-size="11" fill="#2563a6">(OpenID Connect)</text>
+
+    <!-- Clients -->
+    <g>
+      <text x="30" y="270" font-size="13" font-weight="700" fill="#4a5568" letter-spacing="1.5">CLIENTS</text>
+      <rect x="30" y="296" width="200" height="84" rx="12" fill="#fff" stroke="#c8d5e3"/>
+      <text x="50" y="330" font-size="16" class="t-title" fill="#0f1e33">Utilisateur</text>
+      <text x="50" y="353" font-size="12" fill="#5f6b79">navigateur · front-office</text>
+      <rect x="30" y="600" width="200" height="84" rx="12" fill="#fff" stroke="#c8d5e3"/>
+      <text x="50" y="634" font-size="15" class="t-title" fill="#0f1e33">Admin / Prévisionniste</text>
+      <text x="50" y="657" font-size="12" fill="#5f6b79">navigateur · back-office</text>
+      <rect x="30" y="756" width="200" height="84" rx="12" fill="#fff" stroke="#c8d5e3"/>
+      <text x="50" y="790" font-size="16" class="t-title" fill="#0f1e33">Stations météo IoT</text>
+      <text x="50" y="813" font-size="12" fill="#5f6b79">acteur système, sans humain</text>
+
+      <line x1="230" y1="338" x2="290" y2="462" stroke="#4a5568" stroke-width="1.6" marker-end="url(#arr)"/>
+      <line x1="230" y1="642" x2="290" y2="520" stroke="#4a5568" stroke-width="1.6" marker-end="url(#arr)"/>
+      <line x1="230" y1="798" x2="538" y2="798" stroke="#4a5568" stroke-width="1.6" marker-end="url(#arr)"/>
+      <text x="384" y="788" font-size="11.5" text-anchor="middle" fill="#4a5568">mesures des capteurs (HTTP)</text>
+    </g>
+
+    <!-- Legend -->
+    <g font-size="12" fill="#4a5568">
+      <line x1="30" y1="896" x2="80" y2="896" stroke="#4a5568" stroke-width="1.6" marker-end="url(#arr)"/>
+      <text x="90" y="900">appel REST synchrone</text>
+      <line x1="270" y1="896" x2="320" y2="896" stroke="#4a5568" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#arr)"/>
+      <text x="330" y="900">service transverse / authentification</text>
+      <rect x="590" y="886" width="18" height="18" rx="4" fill="#e8f0f9" stroke="#2563a6"/><text x="616" y="900">PostgreSQL (relationnel)</text>
+      <rect x="790" y="886" width="18" height="18" rx="4" fill="#e6f4ea" stroke="#1f8a4c"/><text x="816" y="900">MongoDB (documents)</text>
+      <rect x="980" y="886" width="18" height="18" rx="4" fill="#f1eafb" stroke="#7b4fc4"/><text x="1006" y="900">InfluxDB (séries temporelles)</text>
+    </g>
+  </svg>
+
+  <div class="foot"><span>SkyTrack · Architecture globale</span><span>01 / 03</span></div>
+</section>
+
+<!-- ============================ 3. INTER-SERVICE ============================ -->
+<section class="page">
+  <div class="head">
+    <div>
+      <div class="eyebrow">02 · Communication</div>
+      <h2>Communication inter-services</h2>
+      <p>Les services n’échangent que des identifiants logiques. La flèche va du service qui appelle vers le service appelé, jamais l’inverse.</p>
+    </div>
+  </div>
+
+  <svg viewBox="0 0 1500 640" role="img" aria-label="Diagramme des appels entre microservices">
+    <defs>
+      <marker id="mB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#2563a6"/></marker>
+      <marker id="mO" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#c2502a"/></marker>
+      <marker id="mG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#4a5568"/></marker>
+    </defs>
+
+    <text x="150" y="22" font-size="13" font-weight="700" fill="#4a5568" letter-spacing="1.5">SERVICES APPELANTS</text>
+    <text x="1350" y="22" font-size="13" font-weight="700" fill="#4a5568" letter-spacing="1.5" text-anchor="end">SERVICES DE RÉFÉRENCE</text>
+
+    <!-- arrows (drawn first, boxes on top) -->
+    <line x1="450" y1="85" x2="1046" y2="150" stroke="#2563a6" stroke-width="2.2" marker-end="url(#mB)"/>
+    <line x1="450" y1="270" x2="1046" y2="175" stroke="#2563a6" stroke-width="2.2" marker-end="url(#mB)"/>
+    <line x1="450" y1="300" x2="1046" y2="390" stroke="#c2502a" stroke-width="2.2" marker-end="url(#mO)"/>
+    <line x1="450" y1="470" x2="1046" y2="195" stroke="#2563a6" stroke-width="2.2" marker-end="url(#mB)"/>
+    <line x1="450" y1="500" x2="1046" y2="415" stroke="#c2502a" stroke-width="2.2" marker-end="url(#mO)"/>
+    <line x1="450" y1="605" x2="1046" y2="605" stroke="#4a5568" stroke-width="2" stroke-dasharray="7 5" marker-end="url(#mG)"/>
+
+    <!-- labels -->
+    <g font-size="13" font-weight="600" text-anchor="middle" font-family="JetBrains Mono, monospace">
+      <rect x="664" y="100" width="76" height="24" rx="12" fill="#fff" stroke="#2563a6"/><text x="702" y="117" fill="#2563a6">cityId</text>
+      <rect x="664" y="218" width="76" height="24" rx="12" fill="#fff" stroke="#2563a6"/><text x="702" y="235" fill="#2563a6">cityId</text>
+      <rect x="664" y="326" width="76" height="24" rx="12" fill="#fff" stroke="#c2502a"/><text x="702" y="343" fill="#c2502a">userId</text>
+      <rect x="772" y="293" width="76" height="24" rx="12" fill="#fff" stroke="#2563a6"/><text x="810" y="310" fill="#2563a6">cityId</text>
+      <rect x="664" y="452" width="76" height="24" rx="12" fill="#fff" stroke="#c2502a"/><text x="702" y="469" fill="#c2502a">userId</text>
+    </g>
+    <text x="748" y="595" font-size="12.5" text-anchor="middle" fill="#4a5568">mesures en flux continu (point InfluxDB : timestamp, tag stationId, champs)</text>
+
+    <!-- callers -->
+    <g>
+      <rect x="150" y="40" width="300" height="90" rx="14" fill="#fff" stroke="#2563a6" stroke-width="1.6"/>
+      <text x="172" y="76" font-size="18" class="t-title" fill="#0f1e33">Forecast Service</text>
+      <text x="172" y="102" font-size="12.5" fill="#5f6b79">:8082 · nom de la ville d’une prévision</text>
+
+      <rect x="150" y="240" width="300" height="90" rx="14" fill="#fff" stroke="#2563a6" stroke-width="1.6"/>
+      <text x="172" y="276" font-size="18" class="t-title" fill="#0f1e33">Alert &amp; Notification</text>
+      <text x="172" y="302" font-size="12.5" fill="#5f6b79">:8083 · ville touchée, destinataire</text>
+
+      <rect x="150" y="440" width="300" height="90" rx="14" fill="#fff" stroke="#2563a6" stroke-width="1.6"/>
+      <text x="172" y="476" font-size="18" class="t-title" fill="#0f1e33">Analytics &amp; Preferences</text>
+      <text x="172" y="502" font-size="12.5" fill="#5f6b79">:8085 · historique d’une ville, préférences</text>
+
+      <rect x="150" y="565" width="300" height="80" rx="14" fill="#fff" stroke="#c8d5e3" stroke-width="1.6" stroke-dasharray="6 5"/>
+      <text x="172" y="598" font-size="17" class="t-title" fill="#0f1e33">Stations météo</text>
+      <text x="172" y="622" font-size="12.5" fill="#5f6b79">capteurs physiques</text>
+    </g>
+
+    <!-- callees -->
+    <g>
+      <rect x="1050" y="120" width="300" height="100" rx="14" fill="#0f1e33"/>
+      <text x="1072" y="158" font-size="18" class="t-title" fill="#fff">Location Service</text>
+      <text x="1072" y="182" font-size="12.5" fill="#c9d6e6">:8081 · référentiel des villes</text>
+      <text x="1072" y="202" font-size="12" fill="#7db8e8">n’appelle aucun service</text>
+
+      <rect x="1050" y="350" width="300" height="100" rx="14" fill="#0f1e33"/>
+      <text x="1072" y="388" font-size="18" class="t-title" fill="#fff">User Service (.NET)</text>
+      <text x="1072" y="412" font-size="12.5" fill="#c9d6e6">:8080 · comptes et rôles</text>
+      <text x="1072" y="432" font-size="12" fill="#7db8e8">n’appelle aucun service</text>
+
+      <rect x="1050" y="565" width="300" height="80" rx="14" fill="#fff" stroke="#7b4fc4" stroke-width="1.6"/>
+      <text x="1072" y="598" font-size="17" class="t-title" fill="#0f1e33">IoT Sensor Service</text>
+      <text x="1072" y="622" font-size="12.5" fill="#5f6b79">:8084 · service autonome</text>
+    </g>
+  </svg>
+
+  <div class="cards">
+    <div class="card"><h3>Synchrone, via OpenFeign</h3><p>Chaque appel a besoin de la réponse immédiatement. Le service appelé est trouvé par son nom dans Eureka (ex. <b>location-service</b>), jamais par une adresse en dur. Le User Service en .NET est appelé en REST/JSON comme les autres.</p></div>
+    <div class="card"><h3>Seulement des identifiants</h3><p><b>cityId</b> et <b>userId</b> sont des références logiques, pas des clés étrangères : aucun service ne lit la base d’un autre. Un <i>Long</i> en Java correspond à un <i>long</i> en C#.</p></div>
+    <div class="card"><h3>Si un service tombe</h3><p>Timeout + circuit breaker (Resilience4j) : réponse en mode dégradé au lieu d’une erreur en cascade. Exemple : une prévision reste lisible avec <b>cityName = null</b> si Location ne répond pas ; la création est refusée (503).</p></div>
+  </div>
+
+  <div class="foot"><span>SkyTrack · Architecture globale</span><span>02 / 03</span></div>
+</section>
+
+<!-- ============================ 4. DOCKER ============================ -->
+<section class="page">
+  <div class="head">
+    <div>
+      <div class="eyebrow">03 · Déploiement</div>
+      <h2>Déploiement Docker</h2>
+      <p>Un conteneur par microservice et un par base de données, lancés ensemble par <b>docker-compose</b>. Dans les conteneurs, chaque base écoute sur son port par défaut ; seul le port côté machine hôte change.</p>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="ctr"><h3>user-service <span class="who">Ahmed Bouallegue</span></h3>
+      <div class="row"><span class="pill svc">8080:8080</span><span class="img">ASP.NET Core (.NET)</span></div>
+      <div class="row"><span class="pill pg">5432:5432</span><span>postgres-user · PostgreSQL</span></div></div>
+    <div class="ctr"><h3>location-service <span class="who">Salim Khaldi</span></h3>
+      <div class="row"><span class="pill svc">8081:8081</span><span class="img">Spring Boot</span></div>
+      <div class="row"><span class="pill pg">5433:5432</span><span>postgres-location · PostgreSQL</span></div></div>
+    <div class="ctr"><h3>forecast-service <span class="who">Med Dhia Allagui</span></h3>
+      <div class="row"><span class="pill svc">8082:8082</span><span class="img">Spring Boot</span></div>
+      <div class="row"><span class="pill mg">27017:27017</span><span>mongo-forecast · MongoDB</span></div></div>
+    <div class="ctr"><h3>alert-service <span class="who">Yasmine Fehri</span></h3>
+      <div class="row"><span class="pill svc">8083:8083</span><span class="img">Spring Boot</span></div>
+      <div class="row"><span class="pill mg">27018:27017</span><span>mongo-alert · MongoDB</span></div></div>
+    <div class="ctr"><h3>iot-service <span class="who">Yassine Wesslati</span></h3>
+      <div class="row"><span class="pill svc">8084:8084</span><span class="img">Spring Boot</span></div>
+      <div class="row"><span class="pill ix">8086:8086</span><span>influx-iot · InfluxDB</span></div></div>
+    <div class="ctr"><h3>analytics-service <span class="who">Abdallah Grissa</span></h3>
+      <div class="row"><span class="pill svc">8085:8085</span><span class="img">Spring Boot</span></div>
+      <div class="row"><span class="pill ix">8087:8086</span><span>influx-analytics · InfluxDB</span></div>
+      <div class="row"><span class="pill mg">27019:27017</span><span>mongo-analytics · MongoDB</span></div></div>
+  </div>
+
+  <div class="grid" style="grid-template-columns:repeat(5,1fr);margin-top:3.5mm">
+    <div class="ctr"><h3>frontend</h3><div class="row"><span class="pill svc">4200</span><span class="img">Angular 21</span></div></div>
+    <div class="ctr"><h3>api-gateway</h3><div class="row"><span class="pill inf">à définir</span><span class="img">Spring Cloud Gateway</span></div></div>
+    <div class="ctr"><h3>eureka-server</h3><div class="row"><span class="pill inf">8761*</span><span class="img">Netflix Eureka</span></div></div>
+    <div class="ctr"><h3>config-server</h3><div class="row"><span class="pill inf">8888*</span><span class="img">Spring Cloud Config</span></div></div>
+    <div class="ctr"><h3>keycloak</h3><div class="row"><span class="pill inf">8180:8080*</span><span class="img">Keycloak</span></div></div>
+  </div>
+
+  <div class="net"><b>Réseau skytrack-net :</b> tous les conteneurs sont sur le même réseau Docker et se joignent par leur nom (ex. <span class="pill inf">mongo-forecast:27017</span>). Seuls le frontend et l’API Gateway ont besoin d’être exposés à l’extérieur ; les ports des bases ne sont publiés que pour le développement.</div>
+  <div class="note">Notation <b>hôte:conteneur</b>. Ports des microservices et des bases : README du projet. * Ports par défaut proposés pour l’infrastructure (Keycloak décalé en 8180 pour ne pas entrer en conflit avec le User Service) : à confirmer par l’équipe.</div>
+
+  <div class="foot"><span>SkyTrack · Architecture globale</span><span>03 / 03</span></div>
+</section>
+
+</body>
+</html>

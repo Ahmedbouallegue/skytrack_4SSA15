@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <script>(function(){var m=document.querySelector('meta[name="color-scheme"]'),s=null;try{s=localStorage.getItem("skytrack-color-scheme")}catch(e){}m.content=s||"light dark";document.documentElement.setAttribute("data-bs-theme",s||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"))})();</script>
+  <title>Design system · SkyTrack</title>
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+" crossorigin="anonymous">
+  <link href="assets/css/skytrack.css" rel="stylesheet">
+  <style>
+    .sg-section { scroll-margin-top: calc(var(--st-topbar-h) + 16px); }
+    .sg-token { font-family: var(--st-font-mono); font-size: 0.72rem; color: var(--st-text-3); }
+  </style>
+</head>
+<body data-page="styleguide">
+<a class="skip-link" href="#main">Aller au contenu</a>
+<div class="app">
+  <aside class="app-sidebar offcanvas-lg offcanvas-start" id="sidebar" tabindex="-1" aria-label="Menu"></aside>
+
+  <div class="app-main">
+    <header class="app-topbar" data-st-topbar></header>
+
+    <main id="main" class="app-content">
+      <div class="page-header">
+        <div>
+          <div class="eyebrow">Référence UI</div>
+          <h1 class="page-title mt-1">Design system SkyTrack</h1>
+          <p class="page-sub">Jetons, composants et règles d’usage. Changez le thème depuis le menu du profil pour tout vérifier en mode sombre.</p>
+        </div>
+      </div>
+
+      <div class="d-flex flex-column gap-4">
+        <!-- Colors -->
+        <section class="card sg-section" id="couleurs" aria-labelledby="sg-c">
+          <div class="card-header"><div><h2 class="section-title" id="sg-c">Couleurs</h2><p class="card-sub">Toujours via les variables <code>--st-*</code>, jamais en hexadécimal dans les composants.</p></div></div>
+          <div class="card-body">
+            <h3 class="eyebrow mb-3">Marque et surfaces</h3>
+            <div class="row g-3 mb-4" id="sw-base"></div>
+            <h3 class="eyebrow mb-3">Statuts — toujours avec une icône et un libellé</h3>
+            <div class="row g-3 mb-4" id="sw-status"></div>
+            <h3 class="eyebrow mb-3">Séries de graphiques — ordre fixe, 3 maximum par graphique</h3>
+            <div class="row g-3" id="sw-series"></div>
+          </div>
+        </section>
+
+        <!-- Type -->
+        <section class="card sg-section" id="typo" aria-labelledby="sg-t">
+          <div class="card-header"><div><h2 class="section-title" id="sg-t">Typographie</h2><p class="card-sub">Space Grotesk pour les titres et les chiffres · Inter pour l’interface · JetBrains Mono pour les identifiants</p></div></div>
+          <div class="card-body d-flex flex-column gap-3">
+            <div class="d-flex flex-wrap align-items-baseline gap-3"><span class="sg-token" style="width:120px">display-num</span><span class="hero-temp" style="font-size:3.5rem">22<sup>°C</sup></span></div>
+            <div class="d-flex flex-wrap align-items-baseline gap-3"><span class="sg-token" style="width:120px">.page-title</span><span class="page-title">Prévisions par ville</span></div>
+            <div class="d-flex flex-wrap align-items-baseline gap-3"><span class="sg-token" style="width:120px">.section-title</span><span class="section-title">Alertes actives</span></div>
+            <div class="d-flex flex-wrap align-items-baseline gap-3"><span class="sg-token" style="width:120px">body</span><span>Un bulletin de prévision contient ses détails atmosphériques.</span></div>
+            <div class="d-flex flex-wrap align-items-baseline gap-3"><span class="sg-token" style="width:120px">.text-2 / .text-3</span><span class="text-2">Texte secondaire</span><span class="text-3">Texte tertiaire</span></div>
+            <div class="d-flex flex-wrap align-items-baseline gap-3"><span class="sg-token" style="width:120px">.eyebrow</span><span class="eyebrow">Conditions actuelles</span></div>
+            <div class="d-flex flex-wrap align-items-baseline gap-3"><span class="sg-token" style="width:120px">.id-chip</span><span class="id-chip">6731f0a1c2e4</span></div>
+          </div>
+        </section>
+
+        <!-- Buttons -->
+        <section class="card sg-section" id="boutons" aria-labelledby="sg-b">
+          <div class="card-header"><div><h2 class="section-title" id="sg-b">Boutons</h2><p class="card-sub">Un seul bouton primaire par zone. Les actions destructives passent par une confirmation.</p></div></div>
+          <div class="card-body d-flex flex-column gap-3">
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+              <button class="btn btn-primary" type="button"><i class="bi bi-plus-lg" aria-hidden="true"></i>Primaire</button>
+              <button class="btn btn-light" type="button">Secondaire</button>
+              <button class="btn btn-ghost" type="button">Discret</button>
+              <button class="btn btn-danger-soft" type="button"><i class="bi bi-trash3" aria-hidden="true"></i>Supprimer</button>
+              <button class="btn btn-primary" type="button" disabled>Désactivé</button>
+              <button class="btn btn-primary" type="button" disabled><span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Chargement…</button>
+            </div>
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+              <button class="btn btn-primary btn-sm" type="button">Petit</button>
+              <button class="btn btn-primary" type="button">Moyen</button>
+              <button class="btn btn-primary btn-lg" type="button">Grand</button>
+              <button class="icon-btn" type="button" aria-label="Exemple de bouton icône"><i class="bi bi-three-dots" aria-hidden="true"></i></button>
+              <div class="segmented" role="radiogroup" aria-label="Exemple de contrôle segmenté">
+                <input type="radio" class="btn-check" name="sg-seg" id="sg-s1" checked><label class="btn" for="sg-s1">24 h</label>
+                <input type="radio" class="btn-check" name="sg-seg" id="sg-s2"><label class="btn" for="sg-s2">7 jours</label>
+                <input type="radio" class="btn-check" name="sg-seg" id="sg-s3"><label class="btn" for="sg-s3">30 jours</label>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Status & badges -->
+        <section class="card sg-section" id="statuts" aria-labelledby="sg-s">
+          <div class="card-header"><div><h2 class="section-title" id="sg-s">Statuts et badges</h2><p class="card-sub">La couleur ne porte jamais l’information seule.</p></div></div>
+          <div class="card-body d-flex flex-wrap gap-2 align-items-center">
+            <span class="status status-good"><i class="bi bi-check-circle-fill" aria-hidden="true"></i>Opérationnel</span>
+            <span class="status status-warning"><i class="bi bi-exclamation-circle-fill" aria-hidden="true"></i>Vigilance</span>
+            <span class="status status-serious"><i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>Sévère</span>
+            <span class="status status-critical"><i class="bi bi-exclamation-octagon-fill" aria-hidden="true"></i>Critique</span>
+            <span class="status status-info"><span class="pulse" style="background:var(--st-blue)"></span>En cours</span>
+            <span class="status status-neutral"><i class="bi bi-archive" aria-hidden="true"></i>Archivée</span>
+            <span class="badge-soft">MongoDB</span>
+            <span class="badge-soft primary">Location Service</span>
+            <span class="d-inline-flex align-items-center gap-2 small"><span class="pulse"></span>En ligne</span>
+          </div>
+        </section>
+
+        <!-- Forms -->
+        <section class="card sg-section" id="formulaires" aria-labelledby="sg-f">
+          <div class="card-header"><div><h2 class="section-title" id="sg-f">Formulaires</h2><p class="card-sub">Libellé toujours visible, unité dans un input-group, message d’erreur sous le champ.</p></div></div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-4"><label class="form-label" for="sg-i1">Champ texte</label><input class="form-control" id="sg-i1" placeholder="ex. Tunis"><div class="form-text">Texte d’aide.</div></div>
+              <div class="col-md-4"><label class="form-label" for="sg-i2">Avec unité</label><div class="input-group"><input class="form-control" id="sg-i2" type="number" value="22.4"><span class="input-group-text">°C</span></div></div>
+              <div class="col-md-4"><label class="form-label" for="sg-i3">Erreur</label><input class="form-control is-invalid" id="sg-i3" value="140" aria-describedby="sg-i3-err"><div class="invalid-feedback" id="sg-i3-err">Entre 0 et 100 %.</div></div>
+              <div class="col-md-4"><label class="form-label" for="sg-i4">Liste</label><select class="form-select" id="sg-i4"><option>Grand Tunis</option><option>Sahel</option></select></div>
+              <div class="col-md-4 d-flex flex-column gap-2 pt-md-4">
+                <div class="form-check"><input class="form-check-input" type="checkbox" id="sg-c1" checked><label class="form-check-label" for="sg-c1">Case cochée</label></div>
+                <div class="form-check form-switch"><input class="form-check-input" type="checkbox" role="switch" id="sg-c2" checked><label class="form-check-label" for="sg-c2">Interrupteur</label></div>
+              </div>
+              <div class="col-md-4"><label class="form-label" for="sg-i5">Désactivé</label><input class="form-control" id="sg-i5" value="FORECASTER" disabled></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Data display -->
+        <section class="sg-section" id="donnees" aria-labelledby="sg-d">
+          <h2 class="section-title mb-3" id="sg-d">Affichage de données</h2>
+          <div class="row g-4">
+            <div class="col-md-6 col-xl-4"><div class="stat"><div class="stat-head"><span class="stat-label">Tuile de statistique</span><span class="stat-icon"><i class="bi bi-activity" aria-hidden="true"></i></span></div><div class="stat-value">86 412</div><div class="stat-foot"><span class="delta up"><i class="bi bi-arrow-up-short" aria-hidden="true"></i>4,2 %</span>par rapport à hier</div></div></div>
+            <div class="col-md-6 col-xl-4"><div class="card h-100"><div class="empty py-4"><span class="empty-icon"><i class="bi bi-cloud-slash" aria-hidden="true"></i></span><div class="fw-semibold text-body">État vide</div><div class="small">Expliquer et proposer une action.</div><button class="btn btn-sm btn-light mt-2" type="button">Action</button></div></div></div>
+            <div class="col-md-12 col-xl-4"><div class="card h-100"><div class="card-body d-flex flex-column gap-3" aria-busy="true" aria-label="Chargement"><div class="skeleton" style="height:14px;width:40%"></div><div class="skeleton" style="height:32px;width:60%"></div><div class="skeleton" style="height:10px;width:85%"></div><div class="skeleton" style="height:10px;width:70%"></div></div></div></div>
+          </div>
+        </section>
+
+        <!-- Principles -->
+        <section class="card sg-section" id="regles" aria-labelledby="sg-r">
+          <div class="card-header"><div><h2 class="section-title" id="sg-r">Règles</h2></div></div>
+          <div class="card-body">
+            <div class="row g-4">
+              <div class="col-md-6"><h3 class="h6"><i class="bi bi-check-circle-fill me-2" style="color:var(--st-good-dot)" aria-hidden="true"></i>À faire</h3>
+                <ul class="small text-2 mb-0 ps-3 d-flex flex-column gap-1">
+                  <li>Un graphique = une unité. Température et humidité vont dans deux graphiques.</li>
+                  <li>Une ville garde la même couleur de série partout, quels que soient les filtres.</li>
+                  <li>Chaque graphique a une légende textuelle et une vue tableau.</li>
+                  <li>Les identifiants (<code>cityId</code>, <code>stationId</code>) s’affichent en <code>.id-chip</code>.</li>
+                </ul>
+              </div>
+              <div class="col-md-6"><h3 class="h6"><i class="bi bi-x-circle-fill me-2" style="color:var(--st-critical-dot)" aria-hidden="true"></i>À éviter</h3>
+                <ul class="small text-2 mb-0 ps-3 d-flex flex-column gap-1">
+                  <li>Un graphique avec deux axes Y.</li>
+                  <li>Réutiliser une couleur de statut pour une série de données.</li>
+                  <li>Une alerte signalée uniquement par sa couleur.</li>
+                  <li>Des couleurs ou tailles codées en dur hors de <code>skytrack.css</code>.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+(function () {
+  const S = Sky;
+  const tile = (v, name) => `<div class="col-6 col-md-3 col-xl-2"><div class="swatch-tile" style="background:var(${v})"></div><div class="small fw-semibold mt-2">${name}</div><div class="sg-token" data-var="${v}">${v}</div></div>`;
+  S.$("#sw-base").innerHTML = [
+    ["--st-navy", "Navy"], ["--st-blue", "Bleu"], ["--st-sky", "Ciel"], ["--st-bg", "Fond"], ["--st-surface", "Surface"], ["--st-surface-3", "Surface 3"],
+    ["--st-border", "Bordure"], ["--st-text", "Texte"], ["--st-text-2", "Texte 2"], ["--st-text-3", "Texte 3"],
+  ].map(([v, n]) => tile(v, n)).join("");
+  S.$("#sw-status").innerHTML = [["--st-good-dot", "Bon"], ["--st-warning-dot", "Vigilance"], ["--st-serious-dot", "Sévère"], ["--st-critical-dot", "Critique"]].map(([v, n]) => tile(v, n)).join("");
+  S.$("#sw-series").innerHTML = [["--st-series-1", "Série 1"], ["--st-series-2", "Série 2"], ["--st-series-3", "Série 3"]].map(([v, n]) => tile(v, n)).join("");
+
+  function showValues() {
+    const cs = getComputedStyle(document.documentElement);
+    S.$$("[data-var]").forEach((el) => (el.textContent = `${el.dataset.var} · ${cs.getPropertyValue(el.dataset.var).trim()}`));
+  }
+  document.addEventListener("st:themechange", showValues);
+  showValues();
+})();
+</script>
+</body>
+</html>

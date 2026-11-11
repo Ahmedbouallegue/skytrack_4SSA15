@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <script>(function(){var m=document.querySelector('meta[name="color-scheme"]'),s=null;try{s=localStorage.getItem("skytrack-color-scheme")}catch(e){}m.content=s||"light dark";document.documentElement.setAttribute("data-bs-theme",s||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"))})();</script>
+  <title>Paramètres · SkyTrack</title>
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+" crossorigin="anonymous">
+  <link href="assets/css/skytrack.css" rel="stylesheet">
+  <style>
+    .settings-nav { position: sticky; top: calc(var(--st-topbar-h) + 24px); }
+    .settings-nav a { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: var(--st-radius-sm); color: var(--st-text-2); text-decoration: none; font-weight: 500; font-size: 0.9rem; }
+    .settings-nav a:hover { background: var(--st-surface-3); color: var(--st-text); }
+    .settings-section { scroll-margin-top: calc(var(--st-topbar-h) + 24px); }
+    .theme-card { display: block; cursor: pointer; border-radius: var(--st-radius); border: 1px solid var(--st-border); padding: 10px; background: var(--st-surface); transition: border-color var(--st-dur) var(--st-ease), box-shadow var(--st-dur) var(--st-ease); }
+    .theme-card:hover { border-color: var(--st-border-strong); }
+    .btn-check:checked + .theme-card { border-color: var(--st-blue); box-shadow: 0 0 0 3px rgba(var(--st-blue-rgb), 0.16); }
+    .btn-check:focus-visible + .theme-card { outline: 2px solid var(--st-blue); outline-offset: 2px; }
+    .theme-preview { height: 84px; border-radius: 8px; overflow: hidden; display: grid; grid-template-columns: 28% 1fr; border: 1px solid rgba(0,0,0,.06); }
+    .theme-preview .side { background: #0f1e33; }
+    .theme-preview .body { padding: 10px; display: flex; flex-direction: column; gap: 6px; }
+    .theme-preview .bar { height: 8px; border-radius: 4px; }
+    .tp-light .body { background: #f3f5f8; } .tp-light .bar { background: #dbe3ec; } .tp-light .bar.a { background: #2563a6; width: 40%; }
+    .tp-dark .body { background: #0a1220; } .tp-dark .bar { background: #1f3049; } .tp-dark .bar.a { background: #5b9be0; width: 40%; }
+    .tp-system .body { background: linear-gradient(90deg, #f3f5f8 50%, #0a1220 50%); }
+    .tp-system .bar { background: linear-gradient(90deg, #dbe3ec 50%, #1f3049 50%); } .tp-system .bar.a { background: linear-gradient(90deg, #2563a6 50%, #5b9be0 50%); width: 40%; }
+  </style>
+</head>
+<body data-page="settings">
+<a class="skip-link" href="#main">Aller au contenu</a>
+<div class="app">
+  <aside class="app-sidebar offcanvas-lg offcanvas-start" id="sidebar" tabindex="-1" aria-label="Menu"></aside>
+
+  <div class="app-main">
+    <header class="app-topbar" data-st-topbar></header>
+
+    <main id="main" class="app-content">
+      <div class="page-header">
+        <div>
+          <nav aria-label="Fil d’Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="index.html">Accueil</a></li><li class="breadcrumb-item active" aria-current="page">Paramètres</li></ol></nav>
+          <h1 class="page-title">Paramètres</h1>
+          <p class="page-sub">Votre profil, vos préférences d’affichage et vos notifications.</p>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-lg-3 d-none d-lg-block">
+          <nav class="settings-nav" aria-label="Sections des paramètres">
+            <a href="#profil"><i class="bi bi-person" aria-hidden="true"></i>Profil</a>
+            <a href="#preferences"><i class="bi bi-sliders" aria-hidden="true"></i>Préférences</a>
+            <a href="#apparence"><i class="bi bi-circle-half" aria-hidden="true"></i>Apparence</a>
+            <a href="#securite"><i class="bi bi-shield-lock" aria-hidden="true"></i>Sécurité</a>
+          </nav>
+        </div>
+
+        <div class="col-lg-9 d-flex flex-column gap-4">
+          <section class="card settings-section" id="profil" aria-labelledby="p-title">
+            <div class="card-header"><div><h2 class="section-title" id="p-title">Profil</h2><p class="card-sub">Informations du compte (User Service)</p></div></div>
+            <div class="card-body">
+              <div class="d-flex align-items-center gap-3 mb-4">
+                <span class="avatar avatar-lg">MD</span>
+                <div><div class="fw-semibold">Med Dhia Allagui</div><div class="small text-3">Prévisionniste · membre depuis sept. 2026</div></div>
+                <button class="btn btn-sm btn-light ms-auto" type="button">Changer la photo</button>
+              </div>
+              <form class="row g-3" onsubmit="event.preventDefault();Sky.toast('Profil enregistré.')">
+                <div class="col-md-6"><label class="form-label" for="pf-user">Nom d’utilisateur</label><input class="form-control" id="pf-user" value="dhia.a" autocomplete="username"></div>
+                <div class="col-md-6"><label class="form-label" for="pf-mail">E-mail</label><input class="form-control" id="pf-mail" type="email" value="dhia.allagui@skytrack.tn" autocomplete="email"></div>
+                <div class="col-md-6"><label class="form-label" for="pf-role">Rôle</label><input class="form-control" id="pf-role" value="FORECASTER" disabled><div class="form-text">Seul un administrateur peut changer votre rôle.</div></div>
+                <div class="col-md-6"><label class="form-label" for="pf-city">Ville par défaut</label><select class="form-select" id="pf-city"></select></div>
+                <div class="col-12 d-flex justify-content-end gap-2"><button class="btn btn-light" type="reset">Annuler</button><button class="btn btn-primary" type="submit">Enregistrer</button></div>
+              </form>
+            </div>
+          </section>
+
+          <section class="card settings-section" id="preferences" aria-labelledby="pr-title">
+            <div class="card-header"><div><h2 class="section-title" id="pr-title">Préférences</h2><p class="card-sub">UserPreference · Analytics &amp; Preferences Service</p></div></div>
+            <div class="list-flush">
+              <div class="list-row flex-wrap">
+                <div class="flex-grow-1"><div class="fw-semibold small" id="unit-label">Unité de température</div><div class="small text-3">Utilisée dans les prévisions, les stations et les analyses.</div></div>
+                <div class="segmented" role="radiogroup" aria-labelledby="unit-label">
+                  <input type="radio" class="btn-check" name="pref-unit" id="pu-c" value="CELSIUS" checked><label class="btn" for="pu-c">Celsius (°C)</label>
+                  <input type="radio" class="btn-check" name="pref-unit" id="pu-f" value="FAHRENHEIT"><label class="btn" for="pu-f">Fahrenheit (°F)</label>
+                </div>
+              </div>
+              <div class="list-row">
+                <div class="flex-grow-1"><label class="fw-semibold small d-block" for="pref-alerts">Recevoir les alertes</label><div class="small text-3">Notifications pour les villes que vous suivez (champ <code>alertsEnabled</code>).</div></div>
+                <div class="form-check form-switch m-0"><input class="form-check-input" type="checkbox" role="switch" id="pref-alerts" checked></div>
+              </div>
+              <div class="list-row">
+                <div class="flex-grow-1"><label class="fw-semibold small d-block" for="pref-critical">Uniquement les alertes critiques</label><div class="small text-3">Ignorer les niveaux Vigilance et Sévère.</div></div>
+                <div class="form-check form-switch m-0"><input class="form-check-input" type="checkbox" role="switch" id="pref-critical"></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="card settings-section" id="apparence" aria-labelledby="ap-title">
+            <div class="card-header"><div><h2 class="section-title" id="ap-title">Apparence</h2><p class="card-sub">Par défaut, SkyTrack suit le thème de votre système.</p></div></div>
+            <div class="card-body">
+              <div class="row g-3" role="radiogroup" aria-labelledby="ap-title">
+                <div class="col-sm-4">
+                  <input type="radio" class="btn-check" name="theme-settings" id="ts-system" value="system">
+                  <label class="theme-card" for="ts-system"><span class="theme-preview tp-system"><span class="side"></span><span class="body"><span class="bar a"></span><span class="bar"></span><span class="bar"></span></span></span>
+                    <span class="d-block fw-semibold small mt-2">Système</span><span class="d-block small text-3">Actuellement <span data-system-scheme>clair</span></span></label>
+                </div>
+                <div class="col-sm-4">
+                  <input type="radio" class="btn-check" name="theme-settings" id="ts-light" value="light">
+                  <label class="theme-card" for="ts-light"><span class="theme-preview tp-light"><span class="side"></span><span class="body"><span class="bar a"></span><span class="bar"></span><span class="bar"></span></span></span>
+                    <span class="d-block fw-semibold small mt-2">Clair</span><span class="d-block small text-3">Toujours clair</span></label>
+                </div>
+                <div class="col-sm-4">
+                  <input type="radio" class="btn-check" name="theme-settings" id="ts-dark" value="dark">
+                  <label class="theme-card" for="ts-dark"><span class="theme-preview tp-dark"><span class="side"></span><span class="body"><span class="bar a"></span><span class="bar"></span><span class="bar"></span></span></span>
+                    <span class="d-block fw-semibold small mt-2">Sombre</span><span class="d-block small text-3">Toujours sombre</span></label>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="card settings-section" id="securite" aria-labelledby="se-title">
+            <div class="card-header"><div><h2 class="section-title" id="se-title">Sécurité</h2><p class="card-sub">Mot de passe et sessions</p></div></div>
+            <div class="list-flush">
+              <div class="list-row flex-wrap">
+                <div class="flex-grow-1"><div class="fw-semibold small">Mot de passe</div><div class="small text-3">Modifié il y a 2 mois</div></div>
+                <button class="btn btn-sm btn-light" type="button">Changer</button>
+              </div>
+              <div class="list-row flex-wrap">
+                <div class="flex-grow-1"><div class="fw-semibold small">Sessions actives</div><div class="small text-3">Windows · Chrome · Tunis — cette session</div></div>
+                <button class="btn btn-sm btn-danger-soft" type="button">Déconnecter les autres</button>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+(function () {
+  const D = SkyData, S = Sky;
+  S.$("#pf-city").innerHTML = D.cities.map((c) => `<option value="${c.id}"${c.id === 1 ? " selected" : ""}>${S.esc(c.name)}</option>`).join("");
+  document.addEventListener("change", (e) => {
+    if (e.target.name === "pref-unit" || e.target.id === "pref-alerts" || e.target.id === "pref-critical") S.toast("Préférence enregistrée."); // PUT /api/preferences/{userId}
+  });
+})();
+</script>
+</body>
+</html>

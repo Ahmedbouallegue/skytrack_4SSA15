@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <script>(function(){var m=document.querySelector('meta[name="color-scheme"]'),s=null;try{s=localStorage.getItem("skytrack-color-scheme")}catch(e){}m.content=s||"light dark";document.documentElement.setAttribute("data-bs-theme",s||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"))})();</script>
+  <title>Utilisateurs · SkyTrack</title>
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+" crossorigin="anonymous">
+  <link href="assets/css/skytrack.css" rel="stylesheet">
+</head>
+<body data-page="users">
+<a class="skip-link" href="#main">Aller au contenu</a>
+<div class="app">
+  <aside class="app-sidebar offcanvas-lg offcanvas-start" id="sidebar" tabindex="-1" aria-label="Menu"></aside>
+
+  <div class="app-main">
+    <header class="app-topbar" data-st-topbar></header>
+
+    <main id="main" class="app-content">
+      <div class="page-header">
+        <div>
+          <nav aria-label="Fil d’Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="index.html">Accueil</a></li><li class="breadcrumb-item">Référentiel</li><li class="breadcrumb-item active" aria-current="page">Utilisateurs</li></ol></nav>
+          <h1 class="page-title">Utilisateurs et rôles</h1>
+          <p class="page-sub">Comptes gérés par le User Service (.NET · PostgreSQL).</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#user-modal"><i class="bi bi-person-plus" aria-hidden="true"></i>Inviter un utilisateur</button>
+        </div>
+      </div>
+
+      <div class="row g-4 mb-4" id="role-stats"></div>
+
+      <section class="card table-card" aria-labelledby="u-title">
+        <div class="card-header">
+          <h2 class="section-title visually-hidden" id="u-title">Utilisateurs</h2>
+          <div class="filter-bar w-100">
+            <div class="search-wrap">
+              <i class="bi bi-search" aria-hidden="true"></i>
+              <label class="visually-hidden" for="q">Rechercher</label>
+              <input class="form-control" id="q" type="search" placeholder="Nom d’utilisateur ou e-mail…">
+            </div>
+            <div class="segmented" role="radiogroup" aria-label="Rôle">
+              <input type="radio" class="btn-check" name="role" id="ro-all" value="" checked><label class="btn" for="ro-all">Tous</label>
+              <input type="radio" class="btn-check" name="role" id="ro-1" value="1"><label class="btn" for="ro-1">Admin</label>
+              <input type="radio" class="btn-check" name="role" id="ro-2" value="2"><label class="btn" for="ro-2">Prévisionniste</label>
+              <input type="radio" class="btn-check" name="role" id="ro-3" value="3"><label class="btn" for="ro-3">Utilisateur</label>
+            </div>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead><tr><th scope="col">Utilisateur</th><th scope="col">Rôle</th><th scope="col">Statut</th><th scope="col">Dernière connexion</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
+            <tbody id="rows"></tbody>
+          </table>
+        </div>
+        <div class="table-foot"><span id="count">—</span><span>Mots de passe hachés · jamais affichés</span></div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<div class="modal fade" id="user-modal" tabindex="-1" aria-labelledby="user-modal-title" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <form class="modal-content" id="user-form" novalidate>
+      <div class="modal-header"><h2 class="modal-title h5" id="user-modal-title">Inviter un utilisateur</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button></div>
+      <div class="modal-body">
+        <div class="mb-3"><label class="form-label" for="u-name">Nom d’utilisateur</label><input class="form-control" id="u-name" required pattern="[a-z0-9._]{3,}" autocomplete="off"><div class="form-text">Minuscules, chiffres, point ou tiret bas.</div><div class="invalid-feedback">Au moins 3 caractères autorisés.</div></div>
+        <div class="mb-3"><label class="form-label" for="u-email">E-mail</label><input class="form-control" id="u-email" type="email" required autocomplete="off"><div class="invalid-feedback">Adresse e-mail invalide.</div></div>
+        <span class="form-label d-block" id="u-role-label">Rôle</span>
+        <div class="d-grid gap-2" role="radiogroup" aria-labelledby="u-role-label" id="u-roles"></div>
+      </div>
+      <div class="modal-footer"><button type="button" class="btn btn-light" data-bs-dismiss="modal">Annuler</button><button type="submit" class="btn btn-primary"><i class="bi bi-send" aria-hidden="true"></i>Envoyer l’invitation</button></div>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+(function () {
+  const D = SkyData, S = Sky;
+  const users = D.users.slice();
+  const ROLE = {
+    ADMIN: { label: "Administrateur", icon: "bi-shield-lock", desc: "Gère les comptes, les villes et le paramétrage." },
+    FORECASTER: { label: "Prévisionniste", icon: "bi-cloud-sun", desc: "Publie les prévisions et déclenche les alertes." },
+    USER: { label: "Utilisateur", icon: "bi-person", desc: "Consulte la météo et reçoit les alertes." },
+  };
+  const initials = (u) => u.username.split(".").map((p) => p[0]).join("").toUpperCase();
+
+  function renderStats() {
+    S.$("#role-stats").innerHTML = D.roles.map((r) => {
+      const n = users.filter((u) => u.roleId === r.id).length;
+      const meta = ROLE[r.name];
+      return `<div class="col-md-4"><div class="stat">
+        <div class="stat-head"><span class="stat-label">${meta.label}s</span><span class="stat-icon"><i class="bi ${meta.icon}" aria-hidden="true"></i></span></div>
+        <div class="stat-value">${n}</div>
+        <div class="stat-foot">${meta.desc}</div>
+      </div></div>`;
+    }).join("");
+  }
+
+  function render() {
+    const q = S.$("#q").value.trim().toLowerCase();
+    const role = S.$('input[name="role"]:checked').value;
+    const rows = users.filter((u) => (!role || u.roleId === Number(role)) && (!q || u.username.includes(q) || u.email.toLowerCase().includes(q)));
+    S.$("#rows").innerHTML = rows.map((u, i) => {
+      const r = ROLE[D.roleName(u.roleId)];
+      return `<tr>
+        <td><div class="d-flex align-items-center gap-3"><span class="avatar a${(u.id % 6) + 1}">${initials(u)}</span><div class="min-w-0"><div class="cell-main">${S.esc(u.username)}</div><div class="cell-sub text-truncate">${S.esc(u.email)}</div></div></div></td>
+        <td><span class="badge-soft${u.roleId === 1 ? " primary" : ""}"><i class="bi ${r.icon}" aria-hidden="true"></i>${r.label}</span></td>
+        <td>${u.active ? '<span class="status status-good"><i class="bi bi-check-circle-fill" aria-hidden="true"></i>Actif</span>' : '<span class="status status-neutral"><i class="bi bi-pause-circle" aria-hidden="true"></i>Désactivé</span>'}</td>
+        <td class="text-2 text-nowrap">${S.fmt.dateTime(u.lastLogin)}</td>
+        <td class="text-end"><div class="dropdown">
+          <button class="icon-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Actions pour ${S.esc(u.username)}"><i class="bi bi-three-dots" aria-hidden="true"></i></button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><button class="dropdown-item" type="button"><i class="bi bi-pencil" aria-hidden="true"></i>Modifier le rôle</button></li>
+            <li><button class="dropdown-item" type="button"><i class="bi bi-key" aria-hidden="true"></i>Réinitialiser le mot de passe</button></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><button class="dropdown-item text-danger" type="button"><i class="bi bi-person-x text-danger" aria-hidden="true"></i>${u.active ? "Désactiver" : "Réactiver"}</button></li>
+          </ul></div></td>
+      </tr>`;
+    }).join("");
+    S.$("#count").textContent = `${rows.length} utilisateur${rows.length > 1 ? "s" : ""}`;
+  }
+
+  S.$("#q").addEventListener("input", render);
+  document.addEventListener("change", (e) => { if (e.target.name === "role") render(); });
+
+  S.$("#u-roles").innerHTML = D.roles.map((r, i) => {
+    const m = ROLE[r.name];
+    return `<label class="d-flex align-items-center gap-3 p-3 rounded-3 border" style="cursor:pointer">
+      <input class="form-check-input m-0" type="radio" name="u-role" value="${r.id}" ${i === 2 ? "checked" : ""}>
+      <span class="stat-icon"><i class="bi ${m.icon}" aria-hidden="true"></i></span>
+      <span><span class="fw-semibold d-block small">${m.label}</span><span class="small text-3">${m.desc}</span></span>
+    </label>`;
+  }).join("");
+
+  const form = S.$("#user-form");
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (!form.checkValidity()) { form.classList.add("was-validated"); return; }
+    users.unshift({ id: users.length + 1, username: S.$("#u-name").value.trim(), email: S.$("#u-email").value.trim(), roleId: Number(S.$('input[name="u-role"]:checked').value), active: true, lastLogin: new Date().toISOString() });
+    bootstrap.Modal.getInstance("#user-modal").hide();
+    form.reset(); form.classList.remove("was-validated");
+    renderStats(); render();
+    S.toast("Invitation envoyée.", "bi-send-check");
+  });
+
+  renderStats();
+  render();
+})();
+</script>
+</body>
+</html>

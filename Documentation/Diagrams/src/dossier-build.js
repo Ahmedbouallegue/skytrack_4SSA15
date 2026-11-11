@@ -4,7 +4,7 @@ const path = require("path");
 const {
   Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Table, TableRow, TableCell,
   WidthType, ShadingType, BorderStyle, ImageRun, PageBreak, Header, Footer, PageNumber,
-  TableOfContents, LevelFormat, TabStopType, VerticalAlign,
+  TableOfContents, LevelFormat, TabStopType, VerticalAlign, PageOrientation,
 } = require("docx");
 
 const OUT = process.argv[2];
@@ -77,8 +77,7 @@ function table(headers, rows, widths, cap) {
   return cap ? [t, caption("Tableau", cap)] : [t];
 }
 
-function figure(file, pxW, pxH, cap) {
-  const maxW = 642; // ≈ text width in px at 96 dpi
+function figure(file, pxW, pxH, cap, maxW = 642 /* ≈ portrait text width in px at 96 dpi */) {
   const w = Math.min(maxW, pxW), h = Math.round((pxH / pxW) * w);
   return [
     new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 120, after: 0 }, keepNext: true,
@@ -133,6 +132,9 @@ const toc = [
 ];
 
 /* ------------------------------ body ------------------------------ */
+// 4.3 (landscape page). Figure numbers follow reading order, so the figures of
+// chapter 3 are created first, then this one, then the rest of the body.
+let star43;
 const body = [
   /* 1 */
   H1("1. Introduction"),
@@ -233,8 +235,11 @@ const body = [
     ["Analytics & Preferences", "**HistoricalLog** (InfluxDB) : cityId, period, avgTemperature, avgHumidity\n**UserPreference** (MongoDB) : id, userId, unit, alertsEnabled", "Aucune relation entre les deux"],
   ], [20, 52, 28], "Entités, attributs et relations internes"),
   P("Les champs `cityId` et `userId` présents dans Forecast, Alert, Notification, Station, HistoricalLog et UserPreference sont des **références logiques** vers le Location Service et le User Service. Un `Long` côté Java correspond à un `long` côté C#."),
-  H2("4.3 Diagramme de classes"),
-  ...figure(path.join(REPO, "Documentation/Diagrams/diagramme de class.png"), 1257, 1027, "Diagramme de classes"),
+  ...(() => { star43 = [
+  H2("4.3 Diagramme de classes en étoile"),
+  P("Le diagramme place **User** au centre et montre, pour chaque microservice, ses classes et leur lien avec l’utilisateur : relation physique (Role), référence logique par `userId` (Notification, UserPreference) ou simple consultation sans clé (Forecast, City, Station).", { para: { keepNext: true, spacing: { after: 60, line: 276 } } }),
+  ...figure(path.join(DIR, "star.png"), 2573, 1818, "Diagramme de classes en étoile, User au centre", 760),
+]; return ["__SPLIT__"]; })(), // 4.3 is rendered on its own landscape page (see sections below)
   H2("4.4 Exemple : document MongoDB du Forecast Service"),
   P("Le détail météo est un sous-document : il est lu et écrit en même temps que la prévision, sans jointure."),
   ...code([
@@ -374,6 +379,35 @@ const body = [
   P("La conception de SkyTrack répartit clairement les responsabilités entre six services autonomes, chacun avec la base de données adaptée à ses données. Les échanges se limitent à des identifiants, les pannes sont contenues, et des conventions communes (API, interface, Git) garantissent qu’un code écrit par six personnes reste cohérent une fois intégré."),
 ];
 
+/* ------------------------------ sections ------------------------------ */
+// Portrait A4 → landscape A4 for the star class diagram (4.3) → portrait A4 again.
+function headerFooter(width) {
+  return {
+    headers: { default: new Header({ children: [new Paragraph({
+      border: { bottom: { style: BorderStyle.SINGLE, size: 4, color: LINE, space: 4 } },
+      tabStops: [{ type: TabStopType.RIGHT, position: width }],
+      children: [new TextRun({ text: "SkyTrack — Dossier technique", size: 17, color: GREY }), new TextRun({ text: "\tValidation 1 · Conception", size: 17, color: GREY })],
+    })] }), first: new Header({ children: [new Paragraph({ children: [] })] }) },
+    footers: { default: new Footer({ children: [new Paragraph({ alignment: AlignmentType.CENTER,
+      children: [new TextRun({ text: "Page ", size: 17, color: GREY }), new TextRun({ children: [PageNumber.CURRENT], size: 17, color: GREY }),
+        new TextRun({ text: " / ", size: 17, color: GREY }), new TextRun({ children: [PageNumber.TOTAL_PAGES], size: 17, color: GREY })] })] }),
+      first: new Footer({ children: [new Paragraph({ children: [] })] }) },
+  };
+}
+function sections() {
+  const i = body.indexOf("__SPLIT__");
+  const before = body.slice(0, i), after = body.slice(i + 1);
+  const portrait = { size: { width: 11906, height: 16838 }, margin: { top: 1134, bottom: 1134, left: 1134, right: 1134 } };
+  const LW = 16838 - 2 * 900; // landscape text width
+  const landscape = { size: { width: 11906, height: 16838, orientation: PageOrientation.LANDSCAPE }, margin: { top: 900, bottom: 900, left: 900, right: 900 } };
+  const star = star43;
+  return [
+    { properties: { page: portrait, titlePage: true }, ...headerFooter(W), children: [...cover, ...toc, ...before] },
+    { properties: { page: landscape }, ...headerFooter(LW), children: star },
+    { properties: { page: portrait }, ...headerFooter(W), children: after },
+  ];
+}
+
 /* ------------------------------ document ------------------------------ */
 const doc = new Document({
   creator: "Équipe SkyTrack",
@@ -410,26 +444,7 @@ const doc = new Document({
     ],
   },
   features: { updateFields: true },
-  sections: [
-    {
-      properties: { page: { size: { width: 11906, height: 16838 }, margin: { top: 1134, bottom: 1134, left: 1134, right: 1134 } }, titlePage: true },
-      headers: {
-        default: new Header({ children: [new Paragraph({
-          border: { bottom: { style: BorderStyle.SINGLE, size: 4, color: LINE, space: 4 } },
-          tabStops: [{ type: TabStopType.RIGHT, position: W }],
-          children: [new TextRun({ text: "SkyTrack — Dossier technique", size: 17, color: GREY }), new TextRun({ text: "\tValidation 1 · Conception", size: 17, color: GREY })],
-        })] }),
-        first: new Header({ children: [new Paragraph({ children: [] })] }),
-      },
-      footers: {
-        default: new Footer({ children: [new Paragraph({ alignment: AlignmentType.CENTER,
-          children: [new TextRun({ text: "Page ", size: 17, color: GREY }), new TextRun({ children: [PageNumber.CURRENT], size: 17, color: GREY }),
-            new TextRun({ text: " / ", size: 17, color: GREY }), new TextRun({ children: [PageNumber.TOTAL_PAGES], size: 17, color: GREY })] })] }),
-        first: new Footer({ children: [new Paragraph({ children: [] })] }),
-      },
-      children: [...cover, ...toc, ...body],
-    },
-  ],
+  sections: sections(),
 });
 
 Packer.toBuffer(doc).then((buf) => { fs.writeFileSync(OUT, buf); console.log("written", OUT); });

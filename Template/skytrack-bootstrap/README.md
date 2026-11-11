@@ -5,19 +5,33 @@ Elle sert de référence visuelle et de base de code pour les composants Angular
 
 ## Lancer
 
-Aucune installation : ouvrir `index.html` dans un navigateur (ou `login.html` pour l'écran de connexion).
+Aucune installation : ouvrir `index.html` dans un navigateur. Cette page permet de choisir l'espace à ouvrir.
 Bootstrap, Bootstrap Icons, Chart.js et les polices sont chargés depuis un CDN (connexion internet requise).
 
-## Pages
+`login.html` propose trois comptes de démonstration. L'utilisateur arrive sur le front-office ; l'administrateur et le prévisionniste arrivent sur le back-office.
+
+## Deux espaces
+
+### Front-office — `frontoffice/` (acteur « Utilisateur »)
+
+Site public avec une navigation en haut, qui devient une barre d'onglets en bas sur téléphone.
+
+| Page | Fichier | Contenu | Services utilisés |
+|---|---|---|---|
+| Accueil | `index.html` | recherche de ville, météo de la ville principale, 7 jours, vigilances en cours, mes villes, toutes les villes par région | Forecast, Location, Alert |
+| Ville | `city.html?id=…` | conditions du jour, mesure de la station, heure par heure, 7 jours, historique climatique, suivre la ville | Forecast, IoT, Analytics, Alert |
+| Mes alertes | `alerts.html` | notifications lues / non lues, activer les alertes | Alert & Notification |
+| Mon compte | `account.html` | profil, villes suivies, unité °C / °F, thème | User, Analytics & Preferences |
+
+### Back-office — `backoffice/` (acteurs « Administrateur » et « Prévisionniste »)
 
 | Page | Fichier | Microservice représenté |
 |---|---|---|
-| Connexion | `login.html` | User Service |
 | Tableau de bord | `index.html` | tous (vue d'ensemble + santé `/actuator/health`) |
 | Prévisions | `forecasts.html` | Forecast Service — `Forecast` + `WeatherDetail` (liste, détail, création, modification, suppression) |
-| Alertes et notifications | `alerts.html` | Alert & Notification Service — `Alert` 1..* `Notification`, statut lu / non lu |
+| Alertes et notifications | `alerts.html` | Alert & Notification Service — `Alert` 1..* `Notification`, déclencher et clôturer |
 | Stations IoT | `stations.html` | IoT Sensor Service — `Station` 1..* `SensorMeasurement` |
-| Analyses | `analytics.html` | Analytics & Preferences — `HistoricalLog`, unité °C / °F |
+| Analyses | `analytics.html` | Analytics & Preferences — `HistoricalLog` |
 | Villes et régions | `locations.html` | Location Service — `City` N..1 `Region` |
 | Utilisateurs | `users.html` | User Service — `User` N..1 `Role` |
 | Paramètres | `settings.html` | profil, `UserPreference`, thème |
@@ -27,12 +41,16 @@ Bootstrap, Bootstrap Icons, Chart.js et les polices sont chargés depuis un CDN 
 
 ```
 skytrack-bootstrap/
-├── assets/
-│   ├── css/skytrack.css   ← jetons de design + surcouche Bootstrap (tout le style est ici)
-│   ├── js/data.js         ← données fictives, mêmes noms de champs que les entités
-│   ├── js/app.js          ← sidebar, topbar, thème, helpers, graphiques
-│   └── img/favicon.svg
-└── *.html                 ← une page = son <main> + son script
+├── index.html             ← choix de l'espace
+├── login.html             ← connexion commune, redirige selon le rôle
+├── frontoffice/           ← site public (4 pages)
+├── backoffice/            ← administration (9 pages)
+└── assets/                ← partagé par les deux espaces
+    ├── css/skytrack.css   ← jetons de design + surcouche Bootstrap (tout le style est ici)
+    ├── js/data.js         ← données fictives, mêmes noms de champs que les entités
+    ├── js/app.js          ← thème, helpers, graphiques + sidebar/topbar du back-office
+    ├── js/front.js        ← navigation, recherche de ville, villes suivies et unité du front-office
+    └── img/favicon.svg
 ```
 
 ## Choix de design
@@ -49,8 +67,10 @@ skytrack-bootstrap/
 
 | Template | Angular |
 |---|---|
-| `renderSidebar` / `renderTopbar` dans `app.js` | composants `<app-sidebar>` et `<app-topbar>` |
+| `frontoffice/` et `backoffice/` | deux layouts Angular (routes `/` et `/admin`), l'accès à `/admin` est protégé selon le rôle |
+| `renderSidebar` / `renderTopbar` (`app.js`), `renderNav` (`front.js`) | composants `<app-sidebar>`, `<app-topbar>`, `<app-public-nav>` |
 | chaque fichier `.html` | un composant de page + une route |
+| villes suivies, unité, notifications lues (`localStorage` dans `front.js`) | `UserPreference` et `Notification.read` via les API |
 | `data.js` | services Angular appelant les API REST (`/api/forecasts`, `/api/alerts`, …) |
 | `skytrack.css` | `styles.scss` global (copier tel quel) |
 | `Sky.chart(...)` | un composant `<app-chart>` autour de Chart.js |

@@ -1285,7 +1285,237 @@ h1, h2, h3, h4, h5, h6,
 }
 
 @media print {
-  .app-sidebar, .app-topbar, .page-actions { display: none !important; }
+  .app-sidebar, .app-topbar, .page-actions, .fo-nav, .fo-links { display: none !important; }
   .app-main { margin: 0 !important; }
   .card, .stat { box-shadow: none; break-inside: avoid; }
 }
+
+/* =====================================================================
+   10. Front-office (public site for the "Utilisateur" actor)
+   Same tokens and components; a top navigation instead of the sidebar.
+   ===================================================================== */
+.fo { background: var(--st-bg); }
+
+.fo-nav {
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+  background: color-mix(in srgb, var(--st-surface) 86%, transparent);
+  backdrop-filter: saturate(160%) blur(14px);
+  -webkit-backdrop-filter: saturate(160%) blur(14px);
+  border-bottom: 1px solid var(--st-border);
+}
+.fo-nav-inner { display: flex; align-items: center; gap: 16px; min-height: 68px; }
+.fo-nav .brand { padding: 0; color: var(--st-text); }
+.fo-nav .brand:hover { color: var(--st-text); }
+.fo-nav .brand-name span { color: var(--st-blue); }
+.fo-links { display: flex; gap: 4px; }
+.fo-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  color: var(--st-text-2);
+  font-weight: 500;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: background-color var(--st-dur) var(--st-ease), color var(--st-dur) var(--st-ease);
+}
+.fo-link:hover { background: var(--st-surface-3); color: var(--st-text); }
+.fo-link[aria-current="page"] { background: var(--st-blue-subtle); color: var(--st-blue-text); font-weight: 600; }
+.fo-link .side-badge { margin-left: 2px; min-width: 20px; padding: 0 6px; border-radius: 999px; background: var(--st-critical-dot); color: #fff; font-size: 0.68rem; font-weight: 600; text-align: center; }
+@media (max-width: 767.98px) {
+  /* backdrop-filter would make the header the containing block of the
+     fixed tab bar below, pinning it to the top — so drop it on phones. */
+  .fo-nav { backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--st-surface); }
+  .fo-search .form-control { padding-right: 64px; }
+  .fo-search > .btn { width: 44px; padding: 0; }
+  /* Bottom tab bar on phones */
+  .fo-links {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1030;
+    justify-content: space-around;
+    padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+    background: var(--st-surface);
+    border-top: 1px solid var(--st-border);
+    box-shadow: 0 -8px 24px -12px rgba(15, 30, 51, 0.2);
+  }
+  .fo-link { flex-direction: column; gap: 2px; padding: 6px 12px; font-size: 0.7rem; border-radius: 12px; }
+  .fo-link i { font-size: 1.15rem; }
+  .fo-link .side-badge { position: absolute; top: 2px; right: 6px; }
+  .fo { padding-bottom: 72px; }
+}
+
+/* Hero band with search */
+.fo-hero {
+  position: relative;
+  padding: 48px 0 124px;
+  color: #f5f9ff;
+  background:
+    radial-gradient(60% 90% at 88% 0%, rgba(255, 208, 128, 0.5), transparent 60%),
+    radial-gradient(50% 80% at 0% 100%, rgba(91, 155, 224, 0.4), transparent 60%),
+    linear-gradient(165deg, #2c6db5 0%, #1a467f 55%, #0f2a4d 100%);
+  isolation: isolate;
+}
+.fo-hero h1 { font-size: clamp(1.9rem, 3.6vw, 2.75rem); line-height: 1.12; color: #fff; max-width: 680px; }
+.fo-hero p { color: rgba(226, 238, 252, 0.88); max-width: 560px; }
+.fo-hero .breadcrumb { --bs-breadcrumb-divider-color: rgba(226, 238, 252, 0.6); --bs-breadcrumb-item-active-color: rgba(226, 238, 252, 0.85); font-size: 0.8rem; margin-bottom: 8px; }
+.fo-hero .breadcrumb a { color: rgba(226, 238, 252, 0.85); text-decoration: none; }
+.fo-hero .breadcrumb a:hover { color: #fff; }
+.fo-hero .btn-hero {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: rgba(255, 255, 255, 0.12);
+  --bs-btn-border-color: rgba(255, 255, 255, 0.28);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: rgba(255, 255, 255, 0.22);
+  --bs-btn-hover-border-color: rgba(255, 255, 255, 0.4);
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: rgba(255, 255, 255, 0.26);
+}
+.fo-hero .btn-hero[aria-pressed="true"] { --bs-btn-bg: #fff; --bs-btn-color: #1a467f; --bs-btn-hover-bg: #eef4fb; --bs-btn-hover-color: #1a467f; }
+
+.fo-search { position: relative; max-width: 620px; }
+.fo-search .form-control {
+  height: 56px;
+  padding: 0 132px 0 52px;
+  border-radius: 999px;
+  border: 0;
+  background: #fff;
+  color: #0f1e33;
+  font-size: 1rem;
+  box-shadow: 0 16px 40px -12px rgba(5, 15, 30, 0.45);
+}
+.fo-search .form-control::placeholder { color: #66727f; }
+.fo-search .form-control:focus { box-shadow: 0 0 0 4px rgba(125, 184, 232, 0.55), 0 16px 40px -12px rgba(5, 15, 30, 0.45); }
+.fo-search > i { position: absolute; left: 20px; top: 28px; transform: translateY(-50%); color: #66727f; font-size: 1.1rem; z-index: 2; pointer-events: none; }
+.fo-search > .btn { position: absolute; right: 6px; top: 6px; height: 44px; border-radius: 999px; padding: 0 20px; }
+.fo-search .search-error { margin-top: 10px; font-size: 0.85rem; color: #ffd0d0; }
+.fo-suggest {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 64px;
+  z-index: 1040;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  border-radius: var(--st-radius);
+  background: var(--st-surface);
+  border: 1px solid var(--st-border);
+  box-shadow: var(--st-shadow-lg);
+  color: var(--st-text);
+}
+.fo-suggest[hidden] { display: none; }
+.fo-suggest li { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; cursor: pointer; }
+.fo-suggest li[aria-selected="true"], .fo-suggest li:hover { background: var(--st-surface-3); }
+.fo-suggest .temp { margin-left: auto; font-family: var(--st-font-display); font-weight: 600; font-variant-numeric: tabular-nums; }
+.fo-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 16px; font-size: 0.8rem; color: rgba(226, 238, 252, 0.8); }
+.fo-chips a {
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background-color var(--st-dur) var(--st-ease);
+}
+.fo-chips a:hover { background: rgba(255, 255, 255, 0.22); }
+
+/* Content pulled up over the hero */
+.fo-lift { margin-top: -88px; position: relative; z-index: 2; }
+
+/* Current weather card */
+.now-card { padding: 24px; border-radius: var(--st-radius-lg); background: var(--st-surface); border: 1px solid var(--st-border); box-shadow: var(--st-shadow-md); height: 100%; }
+.now-temp { font-family: var(--st-font-display); font-size: clamp(3.5rem, 7vw, 5rem); font-weight: 500; line-height: 1; letter-spacing: -0.045em; font-variant-numeric: tabular-nums; }
+.now-temp sup { font-size: 0.38em; top: -1.25em; margin-left: 2px; color: var(--st-text-2); }
+.now-icon { font-size: 4.5rem; line-height: 1; }
+.now-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-top: 20px; }
+@media (max-width: 575.98px) { .now-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.now-metric { padding: 10px 12px; border-radius: 12px; background: var(--st-surface-2); border: 1px solid var(--st-border); }
+.now-metric .label { display: flex; align-items: center; gap: 6px; font-size: 0.72rem; color: var(--st-text-3); }
+.now-metric .value { margin-top: 2px; font-family: var(--st-font-display); font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* Alert banner — icon + label, never color alone */
+.alert-banner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border-radius: var(--st-radius);
+  border: 1px solid transparent;
+  text-decoration: none;
+  background-color: var(--st-surface); /* opaque base: the tint below may be translucent (dark theme) */
+}
+.alert-banner.critical { background-image: linear-gradient(var(--st-critical-bg), var(--st-critical-bg)); color: var(--st-critical); border-color: color-mix(in srgb, var(--st-critical-dot) 30%, transparent); }
+.alert-banner.serious { background-image: linear-gradient(var(--st-serious-bg), var(--st-serious-bg)); color: var(--st-serious); border-color: color-mix(in srgb, var(--st-serious-dot) 30%, transparent); }
+.alert-banner.warning { background-image: linear-gradient(var(--st-warning-bg), var(--st-warning-bg)); color: var(--st-warning); border-color: color-mix(in srgb, var(--st-warning-dot) 35%, transparent); }
+.alert-banner .title { font-weight: 600; color: var(--st-text); }
+.alert-banner .desc { font-size: 0.85rem; color: var(--st-text-2); }
+.alert-banner > i { font-size: 1.35rem; }
+a.alert-banner:hover { filter: brightness(0.98); }
+
+/* City tiles */
+.city-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 18px;
+  border-radius: var(--st-radius-lg);
+  background: var(--st-surface);
+  border: 1px solid var(--st-border);
+  box-shadow: var(--st-shadow-sm);
+  color: var(--st-text);
+  text-decoration: none;
+  transition: border-color var(--st-dur) var(--st-ease), box-shadow var(--st-dur) var(--st-ease), transform var(--st-dur) var(--st-ease);
+}
+.city-tile:hover { color: var(--st-text); border-color: var(--st-border-strong); box-shadow: var(--st-shadow-md); transform: translateY(-2px); }
+.city-tile .t { font-family: var(--st-font-display); font-size: 2.25rem; font-weight: 500; letter-spacing: -0.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+.city-tile .ico { font-size: 2.1rem; line-height: 1; }
+.city-tile.add { align-items: center; justify-content: center; gap: 8px; min-height: 160px; text-align: center; border-style: dashed; color: var(--st-text-2); box-shadow: none; background: transparent; }
+.city-tile.add:hover { color: var(--st-blue); border-color: var(--st-blue); }
+
+/* Hourly strip */
+.hourly { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(64px, 1fr); gap: 4px; overflow-x: auto; padding-bottom: 6px; position: relative; scroll-snap-type: x proximity; }
+.hour { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 6px; border-radius: var(--st-radius); scroll-snap-align: start; text-align: center; }
+.hour.now { background: var(--st-blue-subtle); }
+.hour .h { font-size: 0.75rem; font-weight: 600; color: var(--st-text-2); }
+.hour .i { font-size: 1.4rem; line-height: 1; }
+.hour .v { font-family: var(--st-font-display); font-weight: 600; font-variant-numeric: tabular-nums; }
+.hour .r { font-size: 0.7rem; color: var(--st-text-3); white-space: nowrap; }
+
+/* 7-day rows */
+.day-row { display: grid; grid-template-columns: 92px 34px 56px 40px 1fr 40px; align-items: center; gap: 12px; padding: 12px 20px; }
+.day-row + .day-row { border-top: 1px solid var(--st-border); }
+.day-row .name { font-weight: 600; }
+.day-row .ico { font-size: 1.4rem; text-align: center; line-height: 1; }
+.day-row .rain { font-size: 0.78rem; color: var(--st-text-3); white-space: nowrap; }
+.day-row .rain i { color: var(--st-series-1); }
+.day-row .lo { text-align: right; color: var(--st-text-3); font-variant-numeric: tabular-nums; }
+.day-row .hi { font-weight: 600; font-variant-numeric: tabular-nums; }
+.day-row .day-range { height: 6px; }
+@media (max-width: 575.98px) { .day-row { grid-template-columns: 60px 26px 44px 30px 1fr 30px; gap: 8px; padding: 12px 16px; } }
+
+/* All cities by region */
+.city-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--st-radius-sm);
+  color: var(--st-text);
+  text-decoration: none;
+  transition: background-color var(--st-dur) var(--st-ease);
+}
+.city-link:hover { background: var(--st-surface-3); color: var(--st-text); }
+.city-link .temp { margin-left: auto; font-family: var(--st-font-display); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.fo-footer { margin-top: 64px; padding: 28px 0; border-top: 1px solid var(--st-border); color: var(--st-text-3); font-size: 0.85rem; }
+.fo-footer a { color: var(--st-text-2); text-decoration: none; }
+.fo-footer a:hover { color: var(--st-blue); }

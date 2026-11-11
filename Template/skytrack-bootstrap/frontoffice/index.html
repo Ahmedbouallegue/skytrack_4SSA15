@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <script>(function(){var m=document.querySelector('meta[name="color-scheme"]'),s=null;try{s=localStorage.getItem("skytrack-color-scheme")}catch(e){}m.content=s||"light dark";document.documentElement.setAttribute("data-bs-theme",s||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"))})();</script>
+  <title>SkyTrack · La météo de vos villes</title>
+  <meta name="description" content="Prévisions, alertes et historique climatique pour les villes de Tunisie.">
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+" crossorigin="anonymous">
+  <link href="../assets/css/skytrack.css" rel="stylesheet">
+</head>
+<body class="fo" data-page="home">
+<a class="skip-link" href="#main">Aller au contenu</a>
+<header class="fo-nav" data-fo-nav></header>
+
+<main id="main">
+  <section class="fo-hero" aria-labelledby="hero-title">
+    <div class="container-xl">
+      <div class="eyebrow mb-2" style="color:rgba(226,238,252,.8)" id="greeting">Bonjour</div>
+      <h1 id="hero-title" class="mb-3">La météo de vos villes, en temps réel.</h1>
+      <p class="mb-4">Prévisions, mesures des stations et alertes officielles, réunies au même endroit.</p>
+      <form class="fo-search" role="search" autocomplete="off" novalidate>
+        <i class="bi bi-search" aria-hidden="true"></i>
+        <label class="visually-hidden" for="global-search">Rechercher une ville</label>
+        <input id="global-search" class="form-control" type="text" placeholder="Rechercher une ville ou une région…" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="suggest">
+        <button class="btn btn-primary" type="submit"><span class="d-none d-md-inline">Rechercher</span><i class="bi bi-arrow-right d-md-none m-0" aria-hidden="true"></i><span class="visually-hidden d-md-none">Rechercher</span></button>
+        <ul class="fo-suggest" id="suggest" role="listbox" aria-label="Villes suggérées" hidden></ul>
+        <div class="search-error" role="alert" hidden></div>
+      </form>
+      <div class="fo-chips"><span>Populaires :</span><a href="city.html?id=1">Tunis</a><a href="city.html?id=7">Sfax</a><a href="city.html?id=3">Sousse</a><a href="city.html?id=5">Bizerte</a><a href="city.html?id=9">Tozeur</a></div>
+    </div>
+  </section>
+
+  <div class="container-xl fo-lift">
+    <div class="row g-4">
+      <!-- Main followed city -->
+      <div class="col-lg-8">
+        <section class="now-card fade-up" aria-labelledby="now-city">
+          <div class="d-flex flex-wrap align-items-start justify-content-between gap-3">
+            <div>
+              <div class="eyebrow">Maintenant · <span id="now-time">09:30</span></div>
+              <h2 class="h3 mt-1 mb-0" id="now-city">—</h2>
+              <div class="text-2 small" id="now-region">—</div>
+            </div>
+            <a class="btn btn-light" id="now-link" href="#">Prévisions détaillées <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i></a>
+          </div>
+          <div class="d-flex align-items-center justify-content-between gap-3 mt-3">
+            <div>
+              <div class="now-temp" id="now-temp">—</div>
+              <div class="fw-semibold mt-2" id="now-summary">—</div>
+              <div class="small text-3" id="now-range">—</div>
+            </div>
+            <div class="now-icon" id="now-icon" aria-hidden="true"></div>
+          </div>
+          <div class="now-metrics" id="now-metrics"></div>
+          <div class="forecast-strip mt-4" id="now-week" aria-label="Prévisions sur 7 jours"></div>
+        </section>
+      </div>
+
+      <!-- Alerts -->
+      <div class="col-lg-4">
+        <section class="card h-100 fade-up" aria-labelledby="al-title">
+          <div class="card-header">
+            <div><h2 class="section-title" id="al-title"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i>Vigilances en cours</h2><p class="card-sub">Alertes officielles actives</p></div>
+          </div>
+          <div class="card-body d-flex flex-column gap-2 pt-2" id="alerts"></div>
+          <div class="card-footer bg-transparent border-top-0 pt-0 pb-3 px-3">
+            <a class="btn btn-sm btn-ghost w-100" href="alerts.html">Gérer mes alertes <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i></a>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- Followed cities -->
+    <section class="mt-5" aria-labelledby="mine-title">
+      <div class="d-flex align-items-end justify-content-between gap-3 mb-3">
+        <div><h2 class="h4 mb-1" id="mine-title">Mes villes</h2><p class="text-2 small mb-0">Les villes que vous suivez, pour un coup d’œil rapide.</p></div>
+        <a class="btn btn-sm btn-ghost" href="account.html#villes">Modifier</a>
+      </div>
+      <div class="row g-3" id="mine"></div>
+    </section>
+
+    <!-- All cities by region -->
+    <section class="mt-5" id="villes" aria-labelledby="all-title" style="scroll-margin-top:88px">
+      <h2 class="h4 mb-1" id="all-title">Toutes les villes</h2>
+      <p class="text-2 small mb-3">Classées par région.</p>
+      <div class="card"><div class="card-body"><div class="row g-4" id="regions"></div></div></div>
+    </section>
+  </div>
+</main>
+
+<footer class="fo-footer" data-fo-footer></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/front.js"></script>
+<script>
+(function () {
+  const D = SkyData, S = Sky, F = Front;
+
+  const h = new Date().getHours();
+  S.$("#greeting").textContent = `${h < 18 ? "Bonjour" : "Bonsoir"}, ${F.USER.name.split(" ")[0]}`;
+  S.$("#now-time").textContent = new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+
+  function renderNow() {
+    const id = F.state.follow[0] || 1;
+    const c = F.city(id), f = F.current(id), w = f.weatherDetail, wk = F.week(id);
+    S.$("#now-city").textContent = c.name;
+    S.$("#now-region").textContent = `${D.regionName(c.regionId)} · Tunisie`;
+    S.$("#now-link").href = `city.html?id=${id}`;
+    S.$("#now-temp").innerHTML = `${Math.round(F.toUnit(w.temperature))}<sup>${F.unitLabel()}</sup>`;
+    S.$("#now-summary").textContent = f.summary;
+    S.$("#now-range").textContent = `Max ${F.temp(wk[0].hi)} · Min ${F.temp(wk[0].lo)} · Ressenti ${F.temp(w.temperature - 1)}`;
+    S.$("#now-icon").innerHTML = S.wxIcon(f.summary);
+    S.$("#now-metrics").innerHTML = [
+      ["bi-droplet", "Humidité", `${w.humidity} %`],
+      ["bi-wind", "Vent", `${w.windSpeed} km/h`],
+      ["bi-speedometer2", "Pression", `${w.pressure} hPa`],
+      ["bi-umbrella", "Pluie", `${wk[0].rain} %`],
+    ].map(([i, l, v]) => `<div class="now-metric"><div class="label"><i class="bi ${i}" aria-hidden="true"></i>${l}</div><div class="value">${v}</div></div>`).join("");
+
+    const lo = Math.min(...wk.map((d) => d.lo)), hi = Math.max(...wk.map((d) => d.hi));
+    S.$("#now-week").innerHTML = wk.map((d, i) => {
+      const left = ((d.lo - lo) / (hi - lo)) * 100, width = ((d.hi - d.lo) / (hi - lo)) * 100;
+      return `<div class="day${i === 0 ? " today" : ""}">
+        <span class="day-name">${S.esc(d.short)}</span>
+        <span class="day-icon">${S.wxIcon(d.wx)}</span>
+        <span class="day-temps">${F.temp(d.hi)}<span class="lo">${F.temp(d.lo)}</span></span>
+        <span class="day-range" aria-hidden="true"><span style="left:${left}%;width:${width}%"></span></span>
+        <span class="day-rain"><i class="bi bi-droplet-fill" aria-hidden="true"></i>${d.rain} %<span class="visually-hidden"> de risque de pluie</span></span>
+      </div>`;
+    }).join("");
+  }
+
+  function renderAlerts() {
+    const list = F.activeAlerts().sort((a, b) => ["CRITICAL", "SERIOUS", "WARNING"].indexOf(a.severity) - ["CRITICAL", "SERIOUS", "WARNING"].indexOf(b.severity));
+    S.$("#alerts").innerHTML = list.length
+      ? list.map((a) => F.alertBanner(a, `city.html?id=${a.cityId}`)).join("")
+      : `<div class="empty py-4"><span class="empty-icon"><i class="bi bi-shield-check" aria-hidden="true"></i></span><div class="fw-semibold text-body">Aucune vigilance</div><div class="small">Rien à signaler pour le moment.</div></div>`;
+  }
+
+  function renderMine() {
+    const tiles = F.state.follow.map((id) => {
+      const c = F.city(id), f = F.current(id);
+      if (!c || !f) return "";
+      const alerts = F.cityAlerts(id);
+      const wk = F.week(id)[0];
+      return `<div class="col-6 col-md-4 col-xl-3">
+        <a class="city-tile" href="city.html?id=${id}">
+          <div class="d-flex justify-content-between align-items-start">
+            <div class="min-w-0"><div class="fw-semibold text-truncate">${S.esc(c.name)}</div><div class="small text-3 text-truncate">${S.esc(D.regionName(c.regionId))}</div></div>
+            <span class="ico">${S.wxIcon(f.summary)}</span>
+          </div>
+          <div class="t mt-3">${F.temp(f.weatherDetail.temperature)}</div>
+          <div class="small text-2 mt-1">${S.esc(f.summary)}</div>
+          <div class="small text-3">Max ${F.temp(wk.hi)} · Min ${F.temp(wk.lo)}</div>
+          ${alerts.length ? `<div class="mt-2">${S.severityChip(alerts[0].severity)}</div>` : ""}
+        </a>
+      </div>`;
+    }).join("");
+    S.$("#mine").innerHTML = tiles + `<div class="col-6 col-md-4 col-xl-3">
+      <button class="city-tile add w-100" type="button" id="add-city"><i class="bi bi-plus-circle fs-3" aria-hidden="true"></i><span class="fw-semibold small">Suivre une ville</span></button>
+    </div>`;
+    S.$("#add-city").addEventListener("click", () => { const i = S.$("#global-search"); window.scrollTo({ top: 0, behavior: "smooth" }); i.focus({ preventScroll: true }); });
+  }
+
+  function renderRegions() {
+    S.$("#regions").innerHTML = D.regions.map((r) => `<div class="col-sm-6 col-lg-4 col-xl">
+      <h3 class="eyebrow mb-2">${S.esc(r.name)}</h3>
+      ${D.cities.filter((c) => c.regionId === r.id).map((c) => {
+        const f = F.current(c.id);
+        return `<a class="city-link" href="city.html?id=${c.id}"><span class="fs-5">${f ? S.wxIcon(f.summary) : ""}</span><span class="fw-medium">${S.esc(c.name)}</span>${F.cityAlerts(c.id).length ? '<i class="bi bi-exclamation-triangle-fill" style="color:var(--st-serious-dot)" aria-label="Alerte en cours"></i>' : ""}<span class="temp">${f ? F.temp(f.weatherDetail.temperature) : "—"}</span></a>`;
+      }).join("")}
+    </div>`).join("");
+  }
+
+  function renderAll() { renderNow(); renderAlerts(); renderMine(); renderRegions(); }
+  document.addEventListener("st:unitchange", renderAll);
+  renderAll();
+})();
+</script>
+</body>
+</html>

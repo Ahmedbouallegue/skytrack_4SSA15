@@ -233,8 +233,9 @@
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="settings.html"><i class="bi bi-person" aria-hidden="true"></i>Mon profil</a>
             <a class="dropdown-item" href="settings.html"><i class="bi bi-sliders" aria-hidden="true"></i>Préférences</a>
+            <a class="dropdown-item" href="../frontoffice/index.html"><i class="bi bi-globe2" aria-hidden="true"></i>Voir le site public</a>
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="login.html"><i class="bi bi-box-arrow-right" aria-hidden="true"></i>Se déconnecter</a>
+            <a class="dropdown-item" href="../login.html"><i class="bi bi-box-arrow-right" aria-hidden="true"></i>Se déconnecter</a>
           </div>
         </div>
       </div>`;
@@ -422,5 +423,5 @@
 
   const refreshCharts = () => registry.forEach((e) => e.render());
 
-  window.Sky = { $, $$, esc, fmt, severityChip, SEVERITY, wxIcon, toast, chart, refreshCharts, legend, chartTable, setTheme };
+  window.Sky = { $, $$, esc, fmt, severityChip, SEVERITY, wxIcon, toast, chart, refreshCharts, legend, chartTable, setTheme, syncTheme: applyTheme };
 })();

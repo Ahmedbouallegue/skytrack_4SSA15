@@ -134,7 +134,7 @@ const toc = [
 /* ------------------------------ body ------------------------------ */
 // 4.3 (landscape page). Figure numbers follow reading order, so the figures of
 // chapter 3 are created first, then this one, then the rest of the body.
-let star43;
+const [STARW, STARH] = (() => { const b = fs.readFileSync(path.join(DIR, "star-portrait.png")); return [b.readUInt32BE(16), b.readUInt32BE(20)]; })();
 const body = [
   /* 1 */
   H1("1. Introduction"),
@@ -235,11 +235,9 @@ const body = [
     ["Analytics & Preferences", "**HistoricalLog** (InfluxDB) : cityId, period, avgTemperature, avgHumidity\n**UserPreference** (MongoDB) : id, userId, unit, alertsEnabled", "Aucune relation entre les deux"],
   ], [20, 52, 28], "Entités, attributs et relations internes"),
   P("Les champs `cityId` et `userId` présents dans Forecast, Alert, Notification, Station, HistoricalLog et UserPreference sont des **références logiques** vers le Location Service et le User Service. Un `Long` côté Java correspond à un `long` côté C#."),
-  ...(() => { star43 = [
-  H2("4.3 Diagramme de classes en étoile"),
+  new Paragraph({ heading: HeadingLevel.HEADING_2, children: [new TextRun("4.3 Diagramme de classes en étoile")], pageBreakBefore: true }),
   P("Le diagramme place **User** au centre et montre, pour chaque microservice, ses classes et leur lien avec l’utilisateur : relation physique (Role), référence logique par `userId` (Notification, UserPreference) ou simple consultation sans clé (Forecast, City, Station).", { para: { keepNext: true, spacing: { after: 60, line: 276 } } }),
-  ...figure(path.join(DIR, "star.png"), 2573, 1818, "Diagramme de classes en étoile, User au centre", 760),
-]; return ["__SPLIT__"]; })(), // 4.3 is rendered on its own landscape page (see sections below)
+  ...figure(path.join(DIR, "star-portrait.png"), STARW, STARH, "Diagramme de classes en étoile, User au centre", 610),
   H2("4.4 Exemple : document MongoDB du Forecast Service"),
   P("Le détail météo est un sous-document : il est lu et écrit en même temps que la prévision, sans jointure."),
   ...code([
@@ -380,7 +378,6 @@ const body = [
 ];
 
 /* ------------------------------ sections ------------------------------ */
-// Portrait A4 → landscape A4 for the star class diagram (4.3) → portrait A4 again.
 function headerFooter(width) {
   return {
     headers: { default: new Header({ children: [new Paragraph({
@@ -395,17 +392,8 @@ function headerFooter(width) {
   };
 }
 function sections() {
-  const i = body.indexOf("__SPLIT__");
-  const before = body.slice(0, i), after = body.slice(i + 1);
   const portrait = { size: { width: 11906, height: 16838 }, margin: { top: 1134, bottom: 1134, left: 1134, right: 1134 } };
-  const LW = 16838 - 2 * 900; // landscape text width
-  const landscape = { size: { width: 11906, height: 16838, orientation: PageOrientation.LANDSCAPE }, margin: { top: 900, bottom: 900, left: 900, right: 900 } };
-  const star = star43;
-  return [
-    { properties: { page: portrait, titlePage: true }, ...headerFooter(W), children: [...cover, ...toc, ...before] },
-    { properties: { page: landscape }, ...headerFooter(LW), children: star },
-    { properties: { page: portrait }, ...headerFooter(W), children: after },
-  ];
+  return [{ properties: { page: portrait, titlePage: true }, ...headerFooter(W), children: [...cover, ...toc, ...body] }];
 }
 
 /* ------------------------------ document ------------------------------ */

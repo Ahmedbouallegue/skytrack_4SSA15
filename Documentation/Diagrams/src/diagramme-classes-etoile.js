@@ -10,6 +10,9 @@ const DB = {
   ix: { label: "InfluxDB", fill: "#f1eafb", stroke: "#7b4fc4", text: "#5b3a99" },
   mix: { label: "InfluxDB + MongoDB", fill: "#f3f0f8", stroke: "#7b4fc4", text: "#5b3a99" },
 };
+const PORTRAIT = process.argv[2] === "portrait";
+// Layout coordinates: L(landscape, portrait)
+const L = (land, port) => (PORTRAIT ? port : land);
 const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
 const CW = 214, ROW = 19, HEAD = 42;
@@ -66,43 +69,43 @@ function pkg(x, y, title, db, a, b, rel) {
 }
 
 /* ---------------------------- model ---------------------------- */
-const forecast = pkg(10, 30, "Forecast Service", "mg",
+const forecast = pkg(L(10, 20), L(30, 230), "Forecast Service", "mg",
   { name: "Forecast", stereo: "document", attrs: [["id", "String", "pk"], ["cityId", "Long", "fk:City"], ["date", "LocalDate"], ["summary", "String"], ["weatherDetail", "WeatherDetail"]] },
   { name: "WeatherDetail", stereo: "embarqué", attrs: [["temperature", "Double"], ["humidity", "Double"], ["windSpeed", "Double"], ["pressure", "Double"]] },
   { kind: "composition", m1: "1", m2: "1", label: "contient" });
 
 // The User Service package holds Role; User itself is the hub in the middle.
-const role = cls(723, 82, "Role", "table", [["id", "Long", "pk"], ["name", "String"]]);
+const role = cls(L(723, 473), L(82, 72), "Role", "table", [["id", "Long", "pk"], ["name", "String"]]);
 const userPkgSvg = (() => {
-  const x = 680, y = 30, W = 300, H = role.h + 70, d = DB.pg;
+  const x = L(680, 430), y = L(30, 20), W = 300, H = role.h + 70, d = DB.pg;
   return `<rect x="${x}" y="${y}" width="${W}" height="${H}" rx="14" fill="${d.fill}" fill-opacity=".55" stroke="${d.stroke}" stroke-width="1.4" stroke-dasharray="7 5"/>
     <text x="${x + 16}" y="${y + 25}" font-size="14.5" font-weight="700" fill="${NAVY}" class="t">User Service · .NET</text>
     <rect x="${x + W - 112}" y="${y + 10}" width="96" height="22" rx="11" fill="#fff" stroke="${d.stroke}"/>
     <text x="${x + W - 64}" y="${y + 25}" font-size="11.5" font-weight="600" fill="${d.text}" text-anchor="middle">PostgreSQL</text>` + role.svg;
 })();
 
-const alert = pkg(1130, 30, "Alert & Notification Service", "mg",
+const alert = pkg(L(1130, 620), L(30, 230), "Alert & Notification Service", "mg",
   { name: "Alert", stereo: "document", attrs: [["id", "String", "pk"], ["cityId", "Long", "fk:City"], ["type", "String"], ["severity", "Severity"], ["createdAt", "Instant"]] },
   { name: "Notification", stereo: "document", attrs: [["id", "String", "pk"], ["alertId", "String", "fk:Alert"], ["userId", "Long", "fk:User"], ["message", "String"], ["read", "Boolean"]] },
   { kind: "assoc", m1: "1", m2: "0..*", label: "déclenche" });
 
-const location = pkg(10, 735, "Location Service", "pg",
+const location = pkg(L(10, 20), L(735, 800), "Location Service", "pg",
   { name: "City", stereo: "table", attrs: [["id", "Long", "pk"], ["name", "String"], ["latitude", "Double"], ["longitude", "Double"], ["regionId", "Long", "fk:Region"]] },
   { name: "Region", stereo: "table", attrs: [["id", "Long", "pk"], ["name", "String"], ["country", "String"]] },
   { kind: "assoc", m1: "*", m2: "1", label: "appartient à" });
 
-const iot = pkg(570, 735, "IoT Sensor Service", "ix",
+const iot = pkg(L(570, 320), L(735, 1090), "IoT Sensor Service", "ix",
   { name: "Station", stereo: "entité", attrs: [["stationId", "String", "pk"], ["name", "String"], ["cityId", "Long", "fk:City"]] },
   { name: "SensorMeasurement", stereo: "measurement", attrs: [["timestamp", "Instant"], ["stationId", "String", "tag"], ["temperature", "Double"], ["humidity", "Double"], ["rain", "Double"]] },
   { kind: "assoc", m1: "1", m2: "0..*", label: "envoie" });
 
-const analytics = pkg(1130, 735, "Analytics & Preferences Service", "mix",
+const analytics = pkg(L(1130, 620), L(735, 800), "Analytics & Preferences Service", "mix",
   { name: "UserPreference", stereo: "document · MongoDB", attrs: [["id", "String", "pk"], ["userId", "Long", "fk:User"], ["unit", "Unit"], ["alertsEnabled", "Boolean"]] },
   { name: "HistoricalLog", stereo: "measurement · InfluxDB", attrs: [["cityId", "Long", "fk:City"], ["period", "String"], ["avgTemperature", "Double"], ["avgHumidity", "Double"]] },
   { kind: "none" });
 
 // Hub
-const user = cls(710, 420, "User", "table · User Service", [["id", "Long", "pk"], ["username", "String"], ["email", "String"], ["passwordHash", "String"], ["roleId", "Long", "fk:Role"]], { w: 240, center: true });
+const user = cls(L(710, 460), L(420, 540), "User", "table · User Service", [["id", "Long", "pk"], ["username", "String"], ["email", "String"], ["passwordHash", "String"], ["roleId", "Long", "fk:Role"]], { w: 240, center: true });
 
 /* ---------------------------- spokes ---------------------------- */
 // style: "fk" (physical, solid navy) | "logic" (logical userId, dashed blue) | "use" (consultation, dotted grey)
@@ -120,16 +123,16 @@ function spoke(x1, y1, x2, y2, style, label, m1, m2, lx, ly) {
 }
 const N = alert.B, UP = analytics.A, F = forecast.A, C = location.A, S = iot.A;
 const spokes = [
-  spoke(user.cx, user.top, role.cx, role.bottom, "fk", "possède (roleId)", "*", "1", user.cx, (user.top + role.bottom) / 2),
-  spoke(user.right, user.top + 30, N.left + 40, N.bottom, "logic", "reçoit (userId)", "1", "0..*", 1150, 330),
-  spoke(user.right, user.bottom - 30, UP.left, UP.top + 50, "logic", "configure (userId)", "1", "0..1", 1060, 660),
-  spoke(user.left, user.top + 30, F.right - 40, F.bottom, "use", "consulte", "", "", 480, 330),
-  spoke(user.left, user.bottom - 30, C.right - 30, C.top, "use", "suit / consulte", "", "", 500, 660),
-  spoke(user.cx - 40, user.bottom, S.right - 30, S.top, "use", "consulte les mesures", "", "", 735, 690),
+  spoke(user.cx, user.top, role.cx, role.bottom, "fk", "possède (roleId)", "*", "1", user.cx, L((user.top + role.bottom) / 2, 490)),
+  spoke(user.right, user.top + 30, N.left + 40, N.bottom, "logic", "reçoit (userId)", "1", "0..*", L(1150, 827), L(330, 495)),
+  spoke(user.right, user.bottom - 30, L(UP.left, UP.left + 60), L(UP.top + 50, analytics.y), "logic", "configure (userId)", "1", "0..1", L(1060, 696), L(660, 750)),
+  spoke(user.left, user.top + 30, F.right - 40, F.bottom, "use", "consulte", "", "", L(480, 335), L(330, 495)),
+  spoke(user.left, user.bottom - 30, C.right - 30, C.top, "use", "suit / consulte", "", "", L(500, 335), L(660, 750)),
+  spoke(L(user.cx - 40, user.cx), user.bottom, L(S.right - 30, user.cx), L(S.top, iot.y), "use", "consulte les mesures", "", "", L(735, 580), L(690, 1046)),
 ];
 
 /* ---------------------------- page ---------------------------- */
-const svg = `<svg viewBox="0 0 1660 1000" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagramme de classes en étoile, User au centre">
+const svg = `<svg viewBox="0 0 ${L(1660, 1160)} ${L(1000, 1320)}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="${L("xMidYMid meet", "xMidYMin meet")}" role="img" aria-label="Diagramme de classes en étoile, User au centre">
 ${spokes.join("\n")}
 ${forecast.svg}
 ${userPkgSvg}
@@ -143,18 +146,18 @@ ${user.svg}
 const html = `<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>SkyTrack — Diagramme de classes en étoile</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
-@page{size:A4 landscape;margin:0}
+@page{size:A4 ${L("landscape", "portrait")};margin:0}
 *{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 html,body{margin:0;background:#fff;font-family:Inter,Arial,sans-serif;color:${NAVY}}
-.page{width:297mm;height:210mm;padding:8mm 10mm 6mm;display:flex;flex-direction:column;background:#f7f9fb}
-.head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:2mm}
+.page{width:${L("297mm", "210mm")};height:${L("210mm", "297mm")};padding:8mm 10mm 6mm;display:flex;flex-direction:column;background:#f7f9fb}
+.head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:2mm;${L("", "flex-direction:column;align-items:flex-start;gap:3mm")}}
 .eyebrow{font-size:8pt;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:${BLUE}}
 h1{font-family:"Space Grotesk",Inter,sans-serif;font-size:17pt;margin:.5mm 0 0}
 .legend{display:flex;gap:6mm;font-size:8pt;color:${INK2};align-items:center;flex-wrap:wrap;justify-content:flex-end;max-width:180mm}
 .legend span{display:inline-flex;align-items:center;gap:2mm}
-svg{width:100%;height:auto;display:block;flex:1;min-height:0}
+svg{width:100%;height:auto;display:block;flex:1;min-height:0;${L("", "margin-top:3mm")}}
 svg text{font-family:Inter,Arial,sans-serif} svg .t{font-family:"Space Grotesk",Inter,sans-serif} svg .m{font-family:"JetBrains Mono",Consolas,monospace}
-.foot{display:flex;justify-content:space-between;font-size:7.5pt;color:${INK3};margin-top:1mm}
+.foot span:last-child{white-space:nowrap;margin-left:6mm}.foot{display:flex;justify-content:space-between;font-size:7.5pt;color:${INK3};margin-top:1mm}
 </style></head><body><section class="page">
 <div class="head"><div><div class="eyebrow">SkyTrack · Conception</div><h1>Diagramme de classes en étoile — User au centre</h1></div>
 <div class="legend">
@@ -168,5 +171,5 @@ ${svg}
 <div class="foot"><span>Chaque cadre = un microservice et sa base. Entre services, aucune clé étrangère physique : seulement des identifiants (cityId, userId).</span><span>SkyTrack · Validation 1</span></div>
 </section></body></html>`;
 
-fs.writeFileSync(path.join(__dirname, "diagramme-classes-etoile.html"), html);
+fs.writeFileSync(path.join(__dirname, PORTRAIT ? "diagramme-classes-etoile-portrait.html" : "diagramme-classes-etoile.html"), html);
 console.log("ok");

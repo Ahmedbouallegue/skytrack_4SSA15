@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
   <script>(function(){var m=document.querySelector('meta[name="color-scheme"]'),s=null;try{s=localStorage.getItem("skytrack-color-scheme")}catch(e){}m.content=s||"light dark";document.documentElement.setAttribute("data-bs-theme",s||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"))})();</script>
-  <title>Tableau de bord · SkyTrack</title>
+  <title>SkyTrack · Template UI</title>
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,286 +14,47 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+" crossorigin="anonymous">
   <link href="assets/css/skytrack.css" rel="stylesheet">
 </head>
-<body data-page="dashboard">
-<a class="skip-link" href="#main">Aller au contenu</a>
-<div class="app">
-  <aside class="app-sidebar offcanvas-lg offcanvas-start" id="sidebar" tabindex="-1" aria-label="Menu"></aside>
-
-  <div class="app-main">
-    <header class="app-topbar" data-st-topbar></header>
-
-    <main id="main" class="app-content">
-      <div class="page-header">
-        <div>
-          <div class="eyebrow" id="today">Aujourd’hui</div>
-          <h1 class="page-title mt-1">Bonjour, Med Dhia</h1>
-          <p class="page-sub">Voici la situation météo du réseau SkyTrack en temps réel.</p>
-        </div>
-        <div class="page-actions d-flex gap-2">
-          <button class="btn btn-light" type="button"><i class="bi bi-download" aria-hidden="true"></i>Exporter</button>
-          <a class="btn btn-primary" href="forecasts.html#new"><i class="bi bi-plus-lg" aria-hidden="true"></i>Nouvelle prévision</a>
-        </div>
+<body class="fo">
+<main>
+  <section class="fo-hero" style="padding-bottom:160px">
+    <div class="container-xl">
+      <div class="d-flex align-items-center gap-2 mb-4">
+        <span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.5 19h9.25a4.25 4.25 0 0 0 .55-8.46A6.25 6.25 0 0 0 5.4 10.2 4.4 4.4 0 0 0 7.5 19Z"/><path d="M2.8 7.2A10.5 10.5 0 0 1 8.6 3.4" opacity=".65"/><circle cx="11.3" cy="2.9" r="1.1" fill="#fff" stroke="none"/></svg></span>
+        <span class="brand-name text-white">Sky<span style="color:#7db8e8">Track</span></span>
       </div>
+      <div class="eyebrow mb-2" style="color:rgba(226,238,252,.8)">Template UI · Bootstrap 5.3</div>
+      <h1 class="mb-3">Deux espaces, un même design system.</h1>
+      <p class="mb-0">Le front-office pour les utilisateurs, le back-office pour les administrateurs et les prévisionnistes.</p>
+    </div>
+  </section>
 
-      <!-- Row 1 — current conditions + KPIs -->
-      <div class="row g-4 mb-4">
-        <div class="col-xl-5">
-          <section class="hero-weather fade-up" aria-labelledby="hero-city">
-            <div class="d-flex align-items-start justify-content-between gap-3">
-              <div>
-                <div class="eyebrow">Conditions actuelles</div>
-                <h2 class="h4 mt-1 mb-0 text-white" id="hero-city">Tunis</h2>
-                <div class="hero-meta" id="hero-region">Grand Tunis · Tunisie</div>
-              </div>
-              <label class="visually-hidden" for="hero-select">Choisir une ville</label>
-              <select class="form-select" id="hero-select"></select>
-            </div>
-            <div class="d-flex align-items-center justify-content-between mt-3">
-              <div>
-                <div class="hero-temp" id="hero-temp">22<sup>°C</sup></div>
-                <div class="hero-summary mt-2" id="hero-summary">Ensoleillé</div>
-                <div class="hero-meta" id="hero-updated">Prévision du jour · Forecast Service</div>
-              </div>
-              <div class="hero-icon" id="hero-icon" aria-hidden="true"><i class="bi bi-sun"></i></div>
-            </div>
-            <div class="hero-metrics" id="hero-metrics"></div>
-          </section>
-        </div>
-
-        <div class="col-xl-7">
-          <div class="row g-4 h-100">
-            <div class="col-sm-6 fade-up">
-              <div class="stat">
-                <div class="stat-head"><span class="stat-label">Villes suivies</span><span class="stat-icon"><i class="bi bi-geo-alt" aria-hidden="true"></i></span></div>
-                <div class="stat-value" id="kpi-cities">10</div>
-                <div class="stat-foot"><span class="delta up"><i class="bi bi-arrow-up-short" aria-hidden="true"></i>2</span>ce mois-ci · 5 régions</div>
-              </div>
-            </div>
-            <div class="col-sm-6 fade-up">
-              <div class="stat">
-                <div class="stat-head"><span class="stat-label">Stations en ligne</span><span class="stat-icon"><i class="bi bi-broadcast" aria-hidden="true"></i></span></div>
-                <div class="stat-value" id="kpi-stations">5<small>/ 6</small></div>
-                <div class="stat-foot"><span class="status status-serious"><i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>1 hors ligne</span>Tabarka Côte</div>
-              </div>
-            </div>
-            <div class="col-sm-6 fade-up">
-              <div class="stat">
-                <div class="stat-head"><span class="stat-label">Alertes actives</span><span class="stat-icon" style="background:var(--st-critical-bg);color:var(--st-critical)"><i class="bi bi-bell" aria-hidden="true"></i></span></div>
-                <div class="stat-value" id="kpi-alerts">4</div>
-                <div class="stat-foot"><span class="status status-critical"><i class="bi bi-exclamation-octagon-fill" aria-hidden="true"></i>1 critique</span>2 sévères · 1 vigilance</div>
-              </div>
-            </div>
-            <div class="col-sm-6 fade-up">
-              <div class="stat">
-                <div class="stat-head"><span class="stat-label">Mesures reçues (24 h)</span><span class="stat-icon"><i class="bi bi-activity" aria-hidden="true"></i></span></div>
-                <div class="stat-value tabular">86 412</div>
-                <div class="stat-foot"><span class="delta up"><i class="bi bi-arrow-up-short" aria-hidden="true"></i>4,2 %</span>par rapport à hier</div>
-              </div>
-            </div>
-          </div>
-        </div>
+  <div class="container-xl fo-lift" style="margin-top:-120px">
+    <div class="row g-4">
+      <div class="col-md-6">
+        <a class="city-tile p-4" href="frontoffice/index.html">
+          <span class="stat-icon mb-3" style="width:48px;height:48px;font-size:1.3rem"><i class="bi bi-globe2" aria-hidden="true"></i></span>
+          <h2 class="h4 mb-1">Front-office</h2>
+          <p class="text-2 mb-3">Acteur « Utilisateur » : rechercher une ville, consulter ses prévisions, suivre des villes, recevoir les alertes, choisir °C ou °F.</p>
+          <div class="small text-3 mb-3">Accueil · Page ville · Mes alertes · Mon compte</div>
+          <span class="fw-semibold" style="color:var(--st-blue)">Ouvrir le site public <i class="bi bi-arrow-right" aria-hidden="true"></i></span>
+        </a>
       </div>
-
-      <!-- Row 2 — live chart + alerts -->
-      <div class="row g-4 mb-4">
-        <div class="col-xl-8">
-          <section class="card h-100" id="live-card" aria-labelledby="live-title">
-            <div class="card-header">
-              <div>
-                <h2 class="section-title" id="live-title">Température en direct</h2>
-                <p class="card-sub">Mesures des stations IoT · dernières 24 h</p>
-              </div>
-              <div class="d-flex align-items-center gap-3">
-                <div class="form-check form-switch m-0 small">
-                  <input class="form-check-input" type="checkbox" role="switch" id="live-table" data-chart-table="live-card">
-                  <label class="form-check-label text-2" for="live-table">Tableau</label>
-                </div>
-              </div>
-            </div>
-            <div class="card-body pt-2">
-              <div class="chart-legend mb-3" id="live-legend"></div>
-              <div class="chart-box lg"><canvas id="live-chart" role="img" aria-label="Température des stations Tunis, Sfax et Bizerte sur 24 heures"></canvas></div>
-              <div class="chart-table" id="live-data"></div>
-            </div>
-          </section>
-        </div>
-
-        <div class="col-xl-4">
-          <section class="card h-100" aria-labelledby="alerts-title">
-            <div class="card-header">
-              <div>
-                <h2 class="section-title" id="alerts-title">Alertes actives</h2>
-                <p class="card-sub">Alert &amp; Notification Service</p>
-              </div>
-              <a class="btn btn-sm btn-ghost" href="alerts.html">Tout voir <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i></a>
-            </div>
-            <div class="list-flush" id="alert-feed"></div>
-          </section>
-        </div>
+      <div class="col-md-6">
+        <a class="city-tile p-4" href="backoffice/index.html">
+          <span class="stat-icon mb-3" style="width:48px;height:48px;font-size:1.3rem"><i class="bi bi-grid-1x2" aria-hidden="true"></i></span>
+          <h2 class="h4 mb-1">Back-office</h2>
+          <p class="text-2 mb-3">Acteurs « Administrateur » et « Prévisionniste » : publier les prévisions, déclencher les alertes, gérer villes, stations et utilisateurs.</p>
+          <div class="small text-3 mb-3">Tableau de bord · Prévisions · Alertes · Stations · Analyses · Villes · Utilisateurs</div>
+          <span class="fw-semibold" style="color:var(--st-blue)">Ouvrir l’administration <i class="bi bi-arrow-right" aria-hidden="true"></i></span>
+        </a>
       </div>
-
-      <!-- Row 3 — 7-day outlook + service health -->
-      <div class="row g-4 mb-4">
-        <div class="col-xl-7">
-          <section class="card h-100" aria-labelledby="week-title">
-            <div class="card-header">
-              <div>
-                <h2 class="section-title" id="week-title">Prévisions sur 7 jours</h2>
-                <p class="card-sub">Tunis · minimales et maximales</p>
-              </div>
-              <a class="btn btn-sm btn-ghost" href="forecasts.html">Détails <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i></a>
-            </div>
-            <div class="card-body pt-2">
-              <div class="forecast-strip" id="week"></div>
-              <div class="facts">
-                <div class="fact"><div class="label"><i class="bi bi-sunrise" aria-hidden="true"></i>Lever</div><div class="value">06:42</div></div>
-                <div class="fact"><div class="label"><i class="bi bi-sunset" aria-hidden="true"></i>Coucher</div><div class="value">17:14</div></div>
-                <div class="fact"><div class="label"><i class="bi bi-brightness-high" aria-hidden="true"></i>Indice UV</div><div class="value">4 · modéré</div></div>
-                <div class="fact"><div class="label"><i class="bi bi-umbrella" aria-hidden="true"></i>Pluie sur 7 j</div><div class="value">18 mm</div></div>
-              </div>
-            </div>
-          </section>
-        </div>
-        <div class="col-xl-5">
-          <section class="card h-100" aria-labelledby="svc-title">
-            <div class="card-header">
-              <div>
-                <h2 class="section-title" id="svc-title">Santé des microservices</h2>
-                <p class="card-sub">Endpoint /actuator/health de chaque service</p>
-              </div>
-              <span class="status status-good"><i class="bi bi-check-circle-fill" aria-hidden="true"></i>Opérationnel</span>
-            </div>
-            <div class="list-flush pb-2" id="services"></div>
-          </section>
-        </div>
-      </div>
-
-      <!-- Row 4 — latest forecasts -->
-      <section class="card table-card" aria-labelledby="latest-title">
-        <div class="card-header">
-          <div>
-            <h2 class="section-title" id="latest-title">Dernières prévisions publiées</h2>
-            <p class="card-sub">Forecast Service · collection forecasts</p>
-          </div>
-          <a class="btn btn-sm btn-light" href="forecasts.html">Gérer les prévisions</a>
-        </div>
-        <div class="table-responsive">
-          <table class="table table-hover">
-            <thead>
-              <tr>
-                <th scope="col">Ville</th>
-                <th scope="col">Date</th>
-                <th scope="col">Résumé</th>
-                <th scope="col" class="num">Temp.</th>
-                <th scope="col" class="num">Humidité</th>
-                <th scope="col" class="num">Vent</th>
-              </tr>
-            </thead>
-            <tbody id="latest"></tbody>
-          </table>
-        </div>
-      </section>
-    </main>
+    </div>
+    <div class="d-flex flex-wrap gap-2 justify-content-center mt-4">
+      <a class="btn btn-light" href="login.html"><i class="bi bi-box-arrow-in-right" aria-hidden="true"></i>Page de connexion</a>
+      <a class="btn btn-light" href="backoffice/styleguide.html"><i class="bi bi-palette" aria-hidden="true"></i>Design system</a>
+    </div>
   </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" integrity="sha384-NrKB+u6Ts6AtkIhwPixiKTzgSKNblyhlk0Sohlgar9UHUBzai/sgnNNWWd291xqt" crossorigin="anonymous"></script>
-<script src="assets/js/data.js"></script>
-<script src="assets/js/app.js"></script>
-<script>
-(function () {
-  const D = SkyData, S = Sky;
-
-  S.$("#today").textContent = new Date().toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
-
-  /* Hero — current conditions per city (from today's forecasts) */
-  const todays = D.forecasts.filter((f) => f.date === "2026-11-11");
-  const select = S.$("#hero-select");
-  select.innerHTML = todays.map((f) => `<option value="${f.cityId}">${S.esc(D.cityName(f.cityId))}</option>`).join("");
-  function renderHero(cityId) {
-    const f = todays.find((x) => x.cityId === Number(cityId));
-    const city = D.cities.find((c) => c.id === f.cityId);
-    const w = f.weatherDetail;
-    S.$("#hero-city").textContent = city.name;
-    S.$("#hero-region").textContent = `${D.regionName(city.regionId)} · Tunisie`;
-    S.$("#hero-temp").innerHTML = `${Math.round(w.temperature)}<sup>°C</sup>`;
-    S.$("#hero-summary").textContent = f.summary;
-    S.$("#hero-icon").innerHTML = S.wxIcon(f.summary).replace(/wx-\w+/, "");
-    S.$("#hero-metrics").innerHTML = [
-      ["bi-droplet", "Humidité", `${w.humidity} %`],
-      ["bi-wind", "Vent", `${w.windSpeed} km/h`],
-      ["bi-speedometer2", "Pression", `${w.pressure} hPa`],
-      ["bi-thermometer-half", "Ressenti", `${Math.round(w.temperature - 1)} °C`],
-    ].map(([i, l, v]) => `<div class="hero-metric"><div class="label"><i class="bi ${i}" aria-hidden="true"></i>${l}</div><div class="value">${v}</div></div>`).join("");
-  }
-  select.addEventListener("change", (e) => renderHero(e.target.value));
-  renderHero(1);
-
-  /* Live temperature chart — 3 series max, validated categorical slots 1–3 */
-  const hours = Array.from({ length: 24 }, (_, i) => `${String(i).padStart(2, "0")}h`);
-  const live = [
-    { label: "Tunis-Carthage", slot: 1, data: D.series(11, 24, 18.5, 4.5, 1.2, 1.6) },
-    { label: "Sfax Thyna", slot: 2, data: D.series(23, 24, 21, 4.2, 1.1, 1.6) },
-    { label: "Bizerte Port", slot: 3, data: D.series(37, 24, 16, 3, 1.2, 1.6) },
-  ];
-  S.legend(S.$("#live-legend"), live);
-  S.chart(S.$("#live-chart"), "line", () => ({ labels: hours, datasets: live, unit: "°C" }));
-  S.chartTable(S.$("#live-data"), hours, live, "°C");
-
-  /* Alert feed */
-  S.$("#alert-feed").innerHTML = D.alerts.filter((a) => a.active).map((a) => {
-    const s = S.SEVERITY[a.severity];
-    return `<div class="alert-item">
-      <span class="alert-rail ${s.cls}" aria-hidden="true"></span>
-      <div class="min-w-0 flex-grow-1">
-        <div class="d-flex align-items-center justify-content-between gap-2">
-          <span class="cell-main">${S.esc(a.type)} · ${S.esc(D.cityName(a.cityId))}</span>
-          ${S.severityChip(a.severity)}
-        </div>
-        <div class="small text-2 mt-1">${S.esc(a.message)}</div>
-        <div class="cell-sub mt-1">${S.fmt.dateTime(a.createdAt)}</div>
-      </div>
-    </div>`;
-  }).join("");
-
-  /* 7-day strip — range bar positioned on the week's min/max */
-  const lo = Math.min(...D.week.map((d) => d.lo)), hi = Math.max(...D.week.map((d) => d.hi));
-  S.$("#week").innerHTML = D.week.map((d, i) => {
-    const left = ((d.lo - lo) / (hi - lo)) * 100, width = ((d.hi - d.lo) / (hi - lo)) * 100;
-    return `<div class="day${i === 0 ? " today" : ""}">
-      <span class="day-name">${d.day}</span>
-      <span class="day-icon">${S.wxIcon(d.wx)}</span>
-      <span class="day-temps">${d.hi}°<span class="lo">${d.lo}°</span></span>
-      <span class="day-range" aria-hidden="true"><span style="left:${left}%;width:${width}%"></span></span>
-      <span class="day-rain"><i class="bi bi-droplet-fill" aria-hidden="true"></i>${d.rain} %<span class="visually-hidden"> de risque de pluie</span></span>
-    </div>`;
-  }).join("");
-
-  /* Services health */
-  S.$("#services").innerHTML = D.services.map((s) => {
-    const ok = s.status === "UP";
-    return `<div class="svc">
-      <span class="svc-icon"><i class="bi ${s.icon}" aria-hidden="true"></i></span>
-      <div class="min-w-0"><div class="svc-name text-truncate">${S.esc(s.name)}</div><div class="svc-meta text-truncate">${s.tech} · :${s.port}</div></div>
-      <div class="svc-latency">
-        <span>${s.latency} ms</span>
-        ${ok ? '<span class="status status-good"><i class="bi bi-check-circle-fill" aria-hidden="true"></i>UP</span>'
-             : '<span class="status status-warning"><i class="bi bi-exclamation-circle-fill" aria-hidden="true"></i>Lent</span>'}
-      </div>
-    </div>`;
-  }).join("");
-
-  /* Latest forecasts */
-  S.$("#latest").innerHTML = D.forecasts.slice(0, 6).map((f) => `<tr>
-    <td><div class="d-flex align-items-center gap-2"><span class="fs-5">${S.wxIcon(f.summary)}</span><span class="cell-main">${S.esc(D.cityName(f.cityId))}</span></div></td>
-    <td class="text-2">${S.fmt.dayMonth(f.date)}</td>
-    <td>${S.esc(f.summary)}</td>
-    <td class="num fw-semibold">${S.fmt.num(f.weatherDetail.temperature, 1)} °C</td>
-    <td class="num">${f.weatherDetail.humidity} %</td>
-    <td class="num">${f.weatherDetail.windSpeed} km/h</td>
-  </tr>`).join("");
-})();
-</script>
+</main>
+<footer class="fo-footer"><div class="container-xl">© 2026 SkyTrack · Projet microservices</div></footer>
 </body>
 </html>

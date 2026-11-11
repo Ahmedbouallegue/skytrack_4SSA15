@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <script>(function(){var m=document.querySelector('meta[name="color-scheme"]'),s=null;try{s=localStorage.getItem("skytrack-color-scheme")}catch(e){}m.content=s||"light dark";document.documentElement.setAttribute("data-bs-theme",s||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"))})();</script>
+  <title>Mes alertes · SkyTrack</title>
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+" crossorigin="anonymous">
+  <link href="../assets/css/skytrack.css" rel="stylesheet">
+</head>
+<body class="fo" data-page="alerts">
+<a class="skip-link" href="#main">Aller au contenu</a>
+<header class="fo-nav" data-fo-nav></header>
+
+<main id="main">
+  <section class="fo-hero" aria-labelledby="title">
+    <div class="container-xl">
+      <nav aria-label="Fil d’Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="index.html">Accueil</a></li><li class="breadcrumb-item active" aria-current="page">Mes alertes</li></ol></nav>
+      <h1 class="mb-2" id="title">Mes alertes</h1>
+      <p class="mb-0">Les notifications envoyées pour les villes que vous suivez.</p>
+    </div>
+  </section>
+
+  <div class="container-xl fo-lift">
+    <div class="row g-4">
+      <div class="col-lg-8">
+        <section class="card" aria-labelledby="n-title">
+          <div class="card-header">
+            <div><h2 class="section-title" id="n-title">Notifications</h2><p class="card-sub" id="n-sub">—</p></div>
+            <div class="d-flex flex-wrap align-items-center gap-2">
+              <div class="segmented" role="radiogroup" aria-label="Filtrer">
+                <input type="radio" class="btn-check" name="nf" id="nf-all" value="all" checked><label class="btn" for="nf-all">Toutes</label>
+                <input type="radio" class="btn-check" name="nf" id="nf-unread" value="unread"><label class="btn" for="nf-unread">Non lues</label>
+              </div>
+              <button class="btn btn-sm btn-light" type="button" id="mark-all"><i class="bi bi-check2-all" aria-hidden="true"></i>Tout marquer comme lu</button>
+            </div>
+          </div>
+          <div class="list-flush" id="list"></div>
+        </section>
+      </div>
+
+      <div class="col-lg-4 d-flex flex-column gap-4">
+        <section class="card" aria-labelledby="pref-title">
+          <div class="card-body">
+            <div class="d-flex align-items-start gap-3">
+              <span class="stat-icon"><i class="bi bi-bell" aria-hidden="true"></i></span>
+              <div class="flex-grow-1">
+                <h2 class="section-title" id="pref-title"><label for="alerts-on" class="m-0">Recevoir les alertes</label></h2>
+                <p class="small text-2 mb-0 mt-1" id="pref-text">—</p>
+              </div>
+              <div class="form-check form-switch m-0"><input class="form-check-input" type="checkbox" role="switch" id="alerts-on"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="live-title">
+          <div class="card-header"><div><h2 class="section-title" id="live-title">En cours en Tunisie</h2><p class="card-sub">Toutes les vigilances actives</p></div></div>
+          <div class="card-body d-flex flex-column gap-2 pt-2" id="live"></div>
+        </section>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="fo-footer" data-fo-footer></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/front.js"></script>
+<script>
+(function () {
+  const D = SkyData, S = Sky, F = Front;
+
+  function render() {
+    const filter = S.$('input[name="nf"]:checked').value;
+    const items = D.notifications.filter((n) => filter === "all" || !F.state.read.includes(n.id));
+    const unread = F.unreadCount();
+    S.$("#n-sub").textContent = unread ? `${unread} non lue${unread > 1 ? "s" : ""}` : "Tout est lu";
+    S.$("#list").innerHTML = items.length ? items.map((n) => {
+      const a = D.alerts.find((x) => x.id === n.alertId);
+      const s = S.SEVERITY[a ? a.severity : "WARNING"];
+      const read = F.state.read.includes(n.id);
+      return `<article class="d-flex gap-3 px-4 py-3${read ? "" : " bg-body-tertiary"}">
+        <span class="notif-icon ${s.cls}"><i class="bi ${s.icon}" aria-hidden="true"></i></span>
+        <div class="min-w-0 flex-grow-1">
+          <div class="d-flex flex-wrap align-items-center gap-2">
+            <h3 class="h6 mb-0">${S.esc(n.message)}</h3>
+            <span class="status status-${s.cls}">${s.label}</span>
+            ${read ? "" : '<span class="badge-soft primary">Nouveau</span>'}
+          </div>
+          <p class="small text-2 mb-1 mt-1">${a ? S.esc(a.message) : ""}</p>
+          <div class="small text-3 d-flex flex-wrap gap-3">
+            <span>${S.fmt.dateTime(n.sentAt)}</span>
+            ${a ? `<a class="text-decoration-none" href="city.html?id=${a.cityId}">Voir la météo de ${S.esc(D.cityName(a.cityId))}</a>` : ""}
+            ${read ? "" : `<button class="btn btn-link p-0 text-decoration-none align-baseline" style="font-size:inherit;--bs-btn-font-weight:600" type="button" data-read="${n.id}">Marquer comme lu</button>`}
+          </div>
+        </div>
+      </article>`;
+    }).join("") : `<div class="empty"><span class="empty-icon"><i class="bi bi-check2-circle" aria-hidden="true"></i></span><div class="fw-semibold text-body">Vous êtes à jour</div><div class="small">Aucune notification non lue.</div></div>`;
+  }
+
+  S.$("#list").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-read]");
+    if (b) { F.markRead([b.dataset.read]); render(); }
+  });
+  S.$("#mark-all").addEventListener("click", () => { F.markRead(D.notifications.map((n) => n.id)); render(); S.toast("Toutes les notifications sont lues."); });
+  document.addEventListener("change", (e) => { if (e.target.name === "nf") render(); });
+
+  const sw = S.$("#alerts-on");
+  function syncPref() {
+    sw.checked = F.state.alertsEnabled;
+    S.$("#pref-text").textContent = F.state.alertsEnabled
+      ? `Activées pour ${F.state.follow.length} ville${F.state.follow.length > 1 ? "s" : ""} suivie${F.state.follow.length > 1 ? "s" : ""}.`
+      : "Désactivées : vous ne recevrez plus de notifications.";
+  }
+  sw.addEventListener("change", () => { F.setAlertsEnabled(sw.checked); syncPref(); S.toast(sw.checked ? "Alertes activées." : "Alertes désactivées.", sw.checked ? "bi-bell" : "bi-bell-slash"); });
+  syncPref();
+
+  S.$("#live").innerHTML = F.activeAlerts().map((a) => F.alertBanner(a, `city.html?id=${a.cityId}`)).join("");
+  render();
+})();
+</script>
+</body>
+</html>

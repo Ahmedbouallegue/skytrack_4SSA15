@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <script>(function(){var m=document.querySelector('meta[name="color-scheme"]'),s=null;try{s=localStorage.getItem("skytrack-color-scheme")}catch(e){}m.content=s||"light dark";document.documentElement.setAttribute("data-bs-theme",s||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"))})();</script>
+  <title>Mon compte · SkyTrack</title>
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+" crossorigin="anonymous">
+  <link href="../assets/css/skytrack.css" rel="stylesheet">
+</head>
+<body class="fo" data-page="account">
+<a class="skip-link" href="#main">Aller au contenu</a>
+<header class="fo-nav" data-fo-nav></header>
+
+<main id="main">
+  <section class="fo-hero" aria-labelledby="title">
+    <div class="container-xl">
+      <nav aria-label="Fil d’Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="index.html">Accueil</a></li><li class="breadcrumb-item active" aria-current="page">Mon compte</li></ol></nav>
+      <h1 class="mb-2" id="title">Mon compte</h1>
+      <p class="mb-0">Vos informations, vos villes et vos préférences d’affichage.</p>
+    </div>
+  </section>
+
+  <div class="container-xl fo-lift">
+    <div class="row g-4">
+      <div class="col-lg-4">
+        <section class="card" aria-labelledby="p-title">
+          <div class="card-body text-center py-4">
+            <span class="avatar avatar-lg a6 mx-auto">MT</span>
+            <h2 class="h5 mt-3 mb-0" id="p-title">Meriem Trabelsi</h2>
+            <div class="small text-3">meriem.trabelsi@gmail.com</div>
+            <span class="badge-soft mt-2"><i class="bi bi-person" aria-hidden="true"></i>Utilisateur</span>
+          </div>
+          <form class="card-body border-top" onsubmit="event.preventDefault();Sky.toast('Profil enregistré.')">
+            <div class="mb-3"><label class="form-label" for="u">Nom d’utilisateur</label><input class="form-control" id="u" value="meriem.t" autocomplete="username"></div>
+            <div class="mb-3"><label class="form-label" for="m">E-mail</label><input class="form-control" id="m" type="email" value="meriem.trabelsi@gmail.com" autocomplete="email"></div>
+            <div class="d-flex gap-2"><button class="btn btn-primary flex-fill" type="submit">Enregistrer</button><button class="btn btn-light" type="button">Mot de passe</button></div>
+          </form>
+        </section>
+      </div>
+
+      <div class="col-lg-8 d-flex flex-column gap-4">
+        <section class="card" id="villes" aria-labelledby="v-title" style="scroll-margin-top:88px">
+          <div class="card-header"><div><h2 class="section-title" id="v-title">Mes villes</h2><p class="card-sub">La première ville s’affiche en grand sur l’accueil.</p></div></div>
+          <div class="list-flush" id="cities"></div>
+          <div class="card-body border-top d-flex flex-wrap gap-2 align-items-end">
+            <div class="flex-grow-1" style="min-width:200px">
+              <label class="form-label" for="add">Ajouter une ville</label>
+              <select class="form-select" id="add"></select>
+            </div>
+            <button class="btn btn-light" type="button" id="add-btn"><i class="bi bi-plus-lg" aria-hidden="true"></i>Ajouter</button>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="pr-title">
+          <div class="card-header"><div><h2 class="section-title" id="pr-title">Préférences</h2><p class="card-sub">Enregistrées dans votre profil (UserPreference)</p></div></div>
+          <div class="list-flush">
+            <div class="list-row flex-wrap">
+              <div class="flex-grow-1"><div class="fw-semibold small" id="unit-label">Unité de température</div><div class="small text-3">Appliquée sur tout le site.</div></div>
+              <div class="segmented" role="radiogroup" aria-labelledby="unit-label">
+                <input type="radio" class="btn-check" name="fo-unit" id="acc-u-c" value="C"><label class="btn" for="acc-u-c">Celsius (°C)</label>
+                <input type="radio" class="btn-check" name="fo-unit" id="acc-u-f" value="F"><label class="btn" for="acc-u-f">Fahrenheit (°F)</label>
+              </div>
+            </div>
+            <div class="list-row">
+              <div class="flex-grow-1"><label class="fw-semibold small d-block" for="alerts-on">Recevoir les alertes</label><div class="small text-3">Pour les villes que vous suivez.</div></div>
+              <div class="form-check form-switch m-0"><input class="form-check-input" type="checkbox" role="switch" id="alerts-on"></div>
+            </div>
+            <div class="list-row flex-wrap">
+              <div class="flex-grow-1"><div class="fw-semibold small" id="theme-label">Thème</div><div class="small text-3">Système : actuellement <span data-system-scheme>clair</span>.</div></div>
+              <div class="segmented" role="radiogroup" aria-labelledby="theme-label">
+                <input type="radio" class="btn-check" name="theme-settings" id="t-s" value="system"><label class="btn" for="t-s">Système</label>
+                <input type="radio" class="btn-check" name="theme-settings" id="t-l" value="light"><label class="btn" for="t-l">Clair</label>
+                <input type="radio" class="btn-check" name="theme-settings" id="t-d" value="dark"><label class="btn" for="t-d">Sombre</label>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="fo-footer" data-fo-footer></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/front.js"></script>
+<script>
+(function () {
+  const D = SkyData, S = Sky, F = Front;
+
+  function renderCities() {
+    const list = F.state.follow;
+    S.$("#cities").innerHTML = list.length ? list.map((id, i) => {
+      const c = F.city(id), f = F.current(id);
+      return `<div class="list-row">
+        <span class="fs-4">${f ? S.wxIcon(f.summary) : ""}</span>
+        <div class="flex-grow-1 min-w-0"><a class="fw-semibold text-decoration-none text-body" href="city.html?id=${id}">${S.esc(c.name)}</a>${i === 0 ? '<span class="badge-soft primary ms-2">Principale</span>' : ""}<div class="small text-3">${S.esc(D.regionName(c.regionId))} · ${f ? F.temp(f.weatherDetail.temperature) + " · " + S.esc(f.summary) : "—"}</div></div>
+        ${i > 0 ? `<button class="btn btn-sm btn-ghost" type="button" data-main="${id}">Définir principale</button>` : ""}
+        <button class="icon-btn" type="button" data-remove="${id}" aria-label="Ne plus suivre ${S.esc(c.name)}"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+      </div>`;
+    }).join("") : `<div class="empty py-4"><span class="empty-icon"><i class="bi bi-geo-alt" aria-hidden="true"></i></span><div class="fw-semibold text-body">Aucune ville suivie</div><div class="small">Ajoutez une ville ci-dessous.</div></div>`;
+    const options = D.cities.filter((c) => !F.isFollowed(c.id));
+    S.$("#add").innerHTML = options.map((c) => `<option value="${c.id}">${S.esc(c.name)} · ${S.esc(D.regionName(c.regionId))}</option>`).join("");
+    S.$("#add-btn").disabled = !options.length;
+  }
+
+  S.$("#cities").addEventListener("click", (e) => {
+    const rm = e.target.closest("[data-remove]"), main = e.target.closest("[data-main]");
+    if (rm) { F.toggleFollow(rm.dataset.remove); renderCities(); S.toast("Ville retirée."); }
+    if (main) {
+      const id = Number(main.dataset.main);
+      F.state.follow = [id].concat(F.state.follow.filter((x) => x !== id));
+      try { localStorage.setItem("skytrack-follow", JSON.stringify(F.state.follow)); } catch (err) { /* in-memory only */ }
+      renderCities(); S.toast(`${F.city(id).name} est votre ville principale.`);
+    }
+  });
+  S.$("#add-btn").addEventListener("click", () => { F.toggleFollow(S.$("#add").value); renderCities(); S.toast("Ville ajoutée."); });
+
+  S.$$('input[name="fo-unit"]').forEach((i) => (i.checked = i.value === F.state.unit));
+  document.addEventListener("st:unitchange", () => { renderCities(); });
+
+  const sw = S.$("#alerts-on");
+  sw.checked = F.state.alertsEnabled;
+  sw.addEventListener("change", () => { F.setAlertsEnabled(sw.checked); S.toast(sw.checked ? "Alertes activées." : "Alertes désactivées.", sw.checked ? "bi-bell" : "bi-bell-slash"); });
+
+  Sky.syncTheme();
+  renderCities();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <script>(function(){var m=document.querySelector('meta[name="color-scheme"]'),s=null;try{s=localStorage.getItem("skytrack-color-scheme")}catch(e){}m.content=s||"light dark";document.documentElement.setAttribute("data-bs-theme",s||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"))})();</script>
+  <title>Météo · SkyTrack</title>
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+" crossorigin="anonymous">
+  <link href="../assets/css/skytrack.css" rel="stylesheet">
+</head>
+<body class="fo" data-page="city">
+<a class="skip-link" href="#main">Aller au contenu</a>
+<header class="fo-nav" data-fo-nav></header>
+
+<main id="main">
+  <section class="fo-hero" aria-labelledby="city-name">
+    <div class="container-xl">
+      <nav aria-label="Fil d’Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="index.html">Accueil</a></li><li class="breadcrumb-item"><a href="index.html#villes" id="bc-region">Région</a></li><li class="breadcrumb-item active" aria-current="page" id="bc-city">Ville</li></ol></nav>
+      <div class="d-flex flex-wrap align-items-end justify-content-between gap-3">
+        <div>
+          <h1 class="mb-1" id="city-name">—</h1>
+          <p class="mb-0" id="city-meta">—</p>
+        </div>
+        <button class="btn btn-hero" type="button" id="follow" aria-pressed="false"><i class="bi bi-star" aria-hidden="true"></i><span>Suivre cette ville</span></button>
+      </div>
+    </div>
+  </section>
+
+  <div class="container-xl fo-lift">
+    <div class="d-flex flex-column gap-2 mb-4" id="city-alerts"></div>
+
+    <div class="row g-4">
+      <div class="col-lg-7">
+        <section class="now-card" aria-labelledby="now-title">
+          <h2 class="visually-hidden" id="now-title">Conditions actuelles</h2>
+          <div class="eyebrow">Aujourd’hui · prévision officielle</div>
+          <div class="d-flex align-items-center justify-content-between gap-3 mt-2">
+            <div>
+              <div class="now-temp" id="now-temp">—</div>
+              <div class="fw-semibold mt-2 fs-5" id="now-summary">—</div>
+              <div class="small text-3" id="now-range">—</div>
+            </div>
+            <div class="now-icon" id="now-icon" aria-hidden="true"></div>
+          </div>
+          <div class="now-metrics" id="now-metrics"></div>
+        </section>
+      </div>
+      <div class="col-lg-5">
+        <section class="card h-100" aria-labelledby="st-title">
+          <div class="card-header"><div><h2 class="section-title" id="st-title"><i class="bi bi-broadcast" aria-hidden="true"></i>Mesuré par la station</h2><p class="card-sub">Données en direct des capteurs IoT</p></div></div>
+          <div class="card-body pt-2" id="station"></div>
+        </section>
+      </div>
+    </div>
+
+    <section class="card mt-4" aria-labelledby="hr-title">
+      <div class="card-header"><div><h2 class="section-title" id="hr-title">Heure par heure</h2><p class="card-sub">Les prochaines 24 heures</p></div></div>
+      <div class="card-body pt-2">
+        <div class="hourly" id="hourly"></div>
+        <div class="chart-box sm mt-3"><canvas id="c-hourly" role="img" aria-label="Évolution de la température sur les prochaines 24 heures"></canvas></div>
+      </div>
+    </section>
+
+    <div class="row g-4 mt-0">
+      <div class="col-lg-5">
+        <section class="card h-100" aria-labelledby="wk-title">
+          <div class="card-header"><div><h2 class="section-title" id="wk-title">Prévisions sur 7 jours</h2><p class="card-sub">Minimales, maximales et risque de pluie</p></div></div>
+          <div id="week"></div>
+        </section>
+      </div>
+      <div class="col-lg-7">
+        <section class="card h-100" id="hist-card" aria-labelledby="hist-title">
+          <div class="card-header">
+            <div><h2 class="section-title" id="hist-title">Historique climatique</h2><p class="card-sub">Température moyenne mensuelle sur 12 mois</p></div>
+            <div class="form-check form-switch m-0 small" id="hist-toggle">
+              <input class="form-check-input" type="checkbox" role="switch" id="h-table" data-chart-table="hist-card">
+              <label class="form-check-label text-2" for="h-table">Tableau</label>
+            </div>
+          </div>
+          <div class="card-body pt-2" id="hist-body">
+            <div class="chart-box"><canvas id="c-hist" role="img" aria-label="Température moyenne mensuelle sur 12 mois"></canvas></div>
+            <div class="chart-table" id="h-data"></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="fo-footer" data-fo-footer></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" integrity="sha384-NrKB+u6Ts6AtkIhwPixiKTzgSKNblyhlk0Sohlgar9UHUBzai/sgnNNWWd291xqt" crossorigin="anonymous"></script>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/front.js"></script>
+<script>
+(function () {
+  const D = SkyData, S = Sky, F = Front;
+  const id = Number(new URLSearchParams(location.search).get("id")) || 1;
+  const c = F.city(id) || F.city(1);
+  const f = F.current(c.id);
+
+  document.title = `Météo ${c.name} · SkyTrack`;
+  S.$("#city-name").textContent = c.name;
+  S.$("#bc-city").textContent = c.name;
+  S.$("#bc-region").textContent = D.regionName(c.regionId);
+  S.$("#city-meta").textContent = `${D.regionName(c.regionId)} · Tunisie · ${c.latitude.toFixed(2)}° N, ${c.longitude.toFixed(2)}° E`;
+
+  /* Follow */
+  const follow = S.$("#follow");
+  function syncFollow() {
+    const on = F.isFollowed(c.id);
+    follow.setAttribute("aria-pressed", String(on));
+    follow.innerHTML = `<i class="bi ${on ? "bi-star-fill" : "bi-star"}" aria-hidden="true"></i><span>${on ? "Ville suivie" : "Suivre cette ville"}</span>`;
+  }
+  follow.addEventListener("click", () => {
+    const on = F.toggleFollow(c.id);
+    syncFollow();
+    S.toast(on ? `${c.name} ajoutée à vos villes.` : `${c.name} retirée de vos villes.`, on ? "bi-star-fill" : "bi-star");
+  });
+  syncFollow();
+
+  /* Alerts for this city */
+  S.$("#city-alerts").innerHTML = F.cityAlerts(c.id).map((a) => F.alertBanner(a)).join("");
+
+  /* Station (IoT) */
+  const st = D.stations.find((s) => s.cityId === c.id);
+  function renderStation() {
+    S.$("#station").innerHTML = st
+      ? `<div class="d-flex align-items-center justify-content-between gap-2 mb-3">
+           <div><div class="fw-semibold">${S.esc(st.name)}</div><div class="small text-3"><span class="id-chip">${st.stationId}</span> · ${st.seenAgo}</div></div>
+           ${st.online ? '<span class="status status-good"><span class="pulse"></span>En direct</span>' : '<span class="status status-serious"><i class="bi bi-wifi-off" aria-hidden="true"></i>Hors ligne</span>'}
+         </div>
+         <dl class="kv mb-0">
+           <dt><i class="bi bi-thermometer-half me-1" aria-hidden="true"></i>Température</dt><dd>${F.temp(st.last.temperature)}${F.unitLabel().slice(1)}</dd>
+           <dt><i class="bi bi-droplet me-1" aria-hidden="true"></i>Humidité</dt><dd>${st.last.humidity} %</dd>
+           <dt><i class="bi bi-umbrella me-1" aria-hidden="true"></i>Pluie (dernière heure)</dt><dd>${S.fmt.num(st.last.rain, 1)} mm</dd>
+         </dl>
+         ${st.online ? "" : '<p class="small text-3 mt-3 mb-0"><i class="bi bi-info-circle me-1" aria-hidden="true"></i>Dernières valeurs connues. La prévision officielle reste disponible.</p>'}`
+      : `<div class="empty py-3"><span class="empty-icon"><i class="bi bi-broadcast" aria-hidden="true"></i></span><div class="fw-semibold text-body">Pas de station dans cette ville</div><div class="small">Les valeurs affichées proviennent de la prévision officielle.</div></div>`;
+  }
+
+  function renderNow() {
+    const w = f.weatherDetail, wk = F.week(c.id);
+    S.$("#now-temp").innerHTML = `${Math.round(F.toUnit(w.temperature))}<sup>${F.unitLabel()}</sup>`;
+    S.$("#now-summary").textContent = f.summary;
+    S.$("#now-range").textContent = `Max ${F.temp(wk[0].hi)} · Min ${F.temp(wk[0].lo)} · Ressenti ${F.temp(w.temperature - 1)}`;
+    S.$("#now-icon").innerHTML = S.wxIcon(f.summary);
+    S.$("#now-metrics").innerHTML = [
+      ["bi-droplet", "Humidité", `${w.humidity} %`],
+      ["bi-wind", "Vent", `${w.windSpeed} km/h`],
+      ["bi-speedometer2", "Pression", `${w.pressure} hPa`],
+      ["bi-umbrella", "Pluie", `${wk[0].rain} %`],
+    ].map(([i, l, v]) => `<div class="now-metric"><div class="label"><i class="bi ${i}" aria-hidden="true"></i>${l}</div><div class="value">${v}</div></div>`).join("");
+
+    S.$("#hourly").innerHTML = F.hourly(c.id).map((h, i) => `<div class="hour${i === 0 ? " now" : ""}">
+      <span class="h">${h.label}</span><span class="i">${F.wxIcon(h.wx)}</span><span class="v">${F.temp(h.t)}</span>
+      <span class="r"><i class="bi bi-droplet-fill" style="color:var(--st-series-1)" aria-hidden="true"></i> ${h.rain} %</span>
+    </div>`).join("");
+
+    const lo = Math.min(...wk.map((d) => d.lo)), hi = Math.max(...wk.map((d) => d.hi));
+    S.$("#week").innerHTML = wk.map((d) => {
+      const left = ((d.lo - lo) / (hi - lo)) * 100, width = ((d.hi - d.lo) / (hi - lo)) * 100;
+      return `<div class="day-row">
+        <span class="name text-truncate">${S.esc(d.label)}</span>
+        <span class="ico">${S.wxIcon(d.wx)}</span>
+        <span class="rain"><i class="bi bi-droplet-fill" aria-hidden="true"></i> ${d.rain} %</span>
+        <span class="lo">${F.temp(d.lo)}</span>
+        <span class="day-range" aria-hidden="true"><span style="left:${left}%;width:${width}%"></span></span>
+        <span class="hi">${F.temp(d.hi)}</span>
+      </div>`;
+    }).join("");
+  }
+
+  /* Charts — single series each, one unit per chart */
+  S.chart(S.$("#c-hourly"), "line", () => {
+    const hrs = F.hourly(c.id);
+    return { labels: hrs.map((h) => h.label), unit: F.unitLabel(), datasets: [{ label: "Température", slot: 1, data: hrs.map((h) => Math.round(F.toUnit(h.t) * 10) / 10) }] };
+  });
+
+  const hist = D.historicalLogs[c.id];
+  function histData() { return hist.avgTemperature.map((v) => Math.round(F.toUnit(v) * 10) / 10); }
+  if (hist) {
+    S.chart(S.$("#c-hist"), "bar", () => ({ labels: D.months, unit: F.unitLabel(), datasets: [{ label: "Température moyenne", slot: 1, data: histData() }] }));
+  } else {
+    S.$("#hist-toggle").remove();
+    S.$("#hist-body").innerHTML = `<div class="empty"><span class="empty-icon"><i class="bi bi-bar-chart" aria-hidden="true"></i></span><div class="fw-semibold text-body">Historique bientôt disponible</div><div class="small">Les moyennes de ${S.esc(c.name)} seront publiées après 12 mois de mesures.</div></div>`;
+  }
+  function renderHistTable() { if (hist) S.chartTable(S.$("#h-data"), D.months, [{ label: "Température moyenne", data: histData() }], F.unitLabel()); }
+
+  function renderAll() { renderNow(); renderStation(); renderHistTable(); }
+  document.addEventListener("st:unitchange", () => { renderAll(); S.refreshCharts(); });
+  renderAll();
+})();
+</script>
+</body>
+</html>

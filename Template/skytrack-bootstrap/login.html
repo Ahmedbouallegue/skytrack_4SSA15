@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <script>(function(){var m=document.querySelector('meta[name="color-scheme"]'),s=null;try{s=localStorage.getItem("skytrack-color-scheme")}catch(e){}m.content=s||"light dark";document.documentElement.setAttribute("data-bs-theme",s||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"))})();</script>
+  <title>Connexion · SkyTrack</title>
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+" crossorigin="anonymous">
+  <link href="assets/css/skytrack.css" rel="stylesheet">
+</head>
+<body>
+<main class="auth">
+  <div class="auth-form-wrap">
+    <a class="brand" href="index.html">
+      <span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.5 19h9.25a4.25 4.25 0 0 0 .55-8.46A6.25 6.25 0 0 0 5.4 10.2 4.4 4.4 0 0 0 7.5 19Z"/><path d="M2.8 7.2A10.5 10.5 0 0 1 8.6 3.4" opacity=".65"/><circle cx="11.3" cy="2.9" r="1.1" fill="#fff" stroke="none"/></svg></span>
+      <span class="brand-name">Sky<span style="color:var(--st-blue)">Track</span></span>
+    </a>
+
+    <div class="auth-form">
+      <h1 class="h2 mb-2">Bon retour</h1>
+      <p class="text-2 mb-4">Connectez-vous pour suivre la météo de votre réseau.</p>
+
+      <form id="login-form" novalidate>
+        <div class="mb-3">
+          <label class="form-label" for="email">E-mail ou nom d’utilisateur</label>
+          <input class="form-control form-control-lg" id="email" type="text" autocomplete="username" required placeholder="vous@skytrack.tn">
+          <div class="invalid-feedback">Indiquez votre identifiant.</div>
+        </div>
+        <div class="mb-3">
+          <div class="d-flex justify-content-between align-items-baseline">
+            <label class="form-label" for="password">Mot de passe</label>
+            <a class="small text-decoration-none" href="#">Mot de passe oublié ?</a>
+          </div>
+          <div class="input-group input-group-lg has-validation">
+            <input class="form-control" id="password" type="password" autocomplete="current-password" required minlength="6">
+            <button class="btn btn-light" type="button" id="toggle-pw" aria-label="Afficher le mot de passe" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button>
+            <div class="invalid-feedback">6 caractères minimum.</div>
+          </div>
+        </div>
+        <div class="form-check mb-4">
+          <input class="form-check-input" type="checkbox" id="remember" checked>
+          <label class="form-check-label small" for="remember">Rester connecté sur cet appareil</label>
+        </div>
+        <button class="btn btn-primary btn-lg w-100" type="submit" id="submit">Se connecter</button>
+      </form>
+
+      <div class="divider-text my-4">ou</div>
+      <button class="btn btn-light btn-lg w-100" type="button"><i class="bi bi-key" aria-hidden="true"></i>Connexion SSO</button>
+      <p class="small text-3 text-center mt-4 mb-0">Pas encore de compte ? <a class="text-decoration-none" href="#">Contactez un administrateur</a></p>
+    </div>
+
+    <p class="small text-3 mb-0">© 2026 SkyTrack · Projet microservices</p>
+  </div>
+
+  <aside class="auth-visual" aria-hidden="true">
+    <div class="auth-floating">
+      <div class="d-flex justify-content-between align-items-start">
+        <div><div class="small" style="color:rgba(226,238,252,.8)">Tunis · maintenant</div><div class="hero-temp mt-1">22<sup>°C</sup></div></div>
+        <i class="bi bi-sun" style="font-size:2.5rem;color:#ffd98c"></i>
+      </div>
+      <div class="d-flex gap-3 small mt-3" style="color:rgba(226,238,252,.85)"><span><i class="bi bi-droplet me-1"></i>58 %</span><span><i class="bi bi-wind me-1"></i>14 km/h</span><span><i class="bi bi-speedometer2 me-1"></i>1016</span></div>
+    </div>
+    <div class="eyebrow mb-3" style="color:rgba(226,238,252,.75)">6 microservices · 1 plateforme</div>
+    <h2 class="text-white">Prévisions, mesures IoT et alertes, réunies au même endroit.</h2>
+    <p class="mt-3 mb-0">Suivez chaque ville en temps réel, recevez les alertes qui vous concernent et analysez l’historique climatique.</p>
+  </aside>
+</main>
+
+<script>
+(function () {
+  const form = document.getElementById("login-form");
+  const pw = document.getElementById("password");
+  const toggle = document.getElementById("toggle-pw");
+  toggle.addEventListener("click", () => {
+    const show = pw.type === "password";
+    pw.type = show ? "text" : "password";
+    toggle.setAttribute("aria-pressed", String(show));
+    toggle.setAttribute("aria-label", show ? "Masquer le mot de passe" : "Afficher le mot de passe");
+    toggle.innerHTML = `<i class="bi ${show ? "bi-eye-slash" : "bi-eye"}" aria-hidden="true"></i>`;
+  });
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (!form.checkValidity()) { form.classList.add("was-validated"); form.querySelector(":invalid").focus(); return; }
+    const b = document.getElementById("submit");
+    b.disabled = true;
+    b.innerHTML = '<span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Connexion…';
+    setTimeout(() => (location.href = "index.html"), 700);
+  });
+})();
+</script>
+</body>
+</html>

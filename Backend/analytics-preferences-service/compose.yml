@@ -1,0 +1,40 @@
+
+name: skytrack-module6
+
+services:
+  mongodb:
+    image: mongo:7
+    container_name: skytrack-module6-mongodb
+    ports:
+      - "127.0.0.1:27019:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - module6-network
+
+  influxdb:
+    image: influxdb:2.7
+    container_name: skytrack-module6-influxdb
+    ports:
+      - "127.0.0.1:8087:8086"
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+      - influxdb_config:/etc/influxdb2
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: SkytrackLocal2026!
+      DOCKER_INFLUXDB_INIT_ORG: skytrack
+      DOCKER_INFLUXDB_INIT_BUCKET: weather_history
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: skytrack-local-dev-token-change-me
+    networks:
+      - module6-network
+
+volumes:
+  mongodb_data:
+  influxdb_data:
+  influxdb_config:
+
+networks:
+  module6-network:
+    driver: bridge

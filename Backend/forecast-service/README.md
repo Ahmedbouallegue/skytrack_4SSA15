@@ -164,7 +164,7 @@ spring.data.mongodb.uri=mongodb://localhost:27017/forecast_db?serverSelectionTim
 
 Le `serverSelectionTimeoutMS=2000` fait répondre `/actuator/health` en environ 2 s quand MongoDB est arrêté, au lieu des 30 s par défaut du driver.
 
-> Les accents des propriétés `info.*` sont écrits en `é` : Spring Boot lit `application.properties` en ISO-8859-1.
+> Les accents des propriétés `info.*` sont écrits en `\u00e9` : Spring Boot lit `application.properties` en ISO-8859-1.
 
 ### Indicateur de santé personnalisé : `forecastStore`
 

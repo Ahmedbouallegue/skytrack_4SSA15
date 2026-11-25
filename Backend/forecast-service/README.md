@@ -138,3 +138,75 @@ Ordre de démarrage :
 Le service démarre sur `http://localhost:8082` et s'enregistre dans Eureka sous le nom `FORECAST-SERVICE` (visible sur http://localhost:8761).
 
 > État actuel (validation 1) : projet créé, entités et configuration en place, le service compile et démarre. La logique métier (repository, service, contrôleur, client Feign) sera développée après la validation de la conception.
+
+## 6. Observabilité (Spring Boot Actuator)
+
+Sans Actuator, Eureka ne connaît que le *heartbeat* envoyé toutes les 30 s : si MongoDB tombe, le processus tourne toujours et l'instance reste **UP**. Avec `eureka.client.healthcheck.enabled=true`, le statut de `/actuator/health` est transmis à Eureka : une instance malade passe **DOWN** et n'est plus proposée aux autres services.
+
+### Endpoints exposés
+
+| Endpoint | Contenu |
+|---|---|
+| `GET /actuator/health` | Statut global et composants : `mongo`, `forecastStore`, `diskSpace`, `discoveryComposite`, `ping` |
+| `GET /actuator/info` | Nom, version, description, base de données et équipe (propriétés `info.app.*`) |
+| `GET /actuator/metrics` | Liste des métriques (mémoire JVM, threads, requêtes HTTP…) ; `/actuator/metrics/{nom}` pour une métrique précise |
+| `GET/POST /actuator/loggers/{package}` | Lire ou changer le niveau des logs **sans redémarrer** |
+
+Configuration (`application.properties`) :
+
+```properties
+management.endpoints.web.exposure.include=health,info,metrics,loggers
+management.endpoint.health.show-details=always
+management.info.env.enabled=true
+eureka.client.healthcheck.enabled=true
+spring.data.mongodb.uri=mongodb://localhost:27017/forecast_db?serverSelectionTimeoutMS=2000
+```
+
+Le `serverSelectionTimeoutMS=2000` fait répondre `/actuator/health` en environ 2 s quand MongoDB est arrêté, au lieu des 30 s par défaut du driver.
+
+> Les accents des propriétés `info.*` sont écrits en `é` : Spring Boot lit `application.properties` en ISO-8859-1.
+
+### Indicateur de santé personnalisé : `forecastStore`
+
+[`ForecastStoreHealthIndicator`](src/main/java/com/skytrack/forecast/health/ForecastStoreHealthIndicator.java) vérifie que la collection `forecasts` est lisible et indique le nombre de prévisions :
+
+```json
+"forecastStore": { "status": "UP", "details": { "collection": "forecasts", "forecasts": 0 } }
+```
+
+Si la lecture échoue, il passe **DOWN** avec le message d'erreur. Il **ne dépend volontairement pas du Location Service** : si Location tombe, le Forecast Service reste disponible en mode dégradé (`cityName: null`, voir section 4). Le faire passer DOWN propagerait la panne d'un service à un autre, ce que l'architecture cherche à éviter.
+
+### Test de panne de la base de données
+
+| Étape | Résultat observé |
+|---|---|
+| Tout démarré | `/actuator/health` → **UP** (HTTP 200) ; Eureka → `FORECAST-SERVICE` **UP** |
+| Arrêt de MongoDB | `/actuator/health` → **DOWN** (HTTP **503**, réponse en 4 s) : `mongo` et `forecastStore` DOWN |
+| | Eureka → `FORECAST-SERVICE` **DOWN** après environ 12 s |
+| Redémarrage de MongoDB | `/actuator/health` → **UP** (HTTP 200) ; Eureka → **UP** après environ 40 s |
+
+### Métriques et niveau des logs
+
+Le service n'a pas encore d'API métier : les requêtes mesurées sont des appels répétés à `/actuator/health`.
+
+- `/actuator/metrics` expose **55** métriques ; `jvm.memory.used` ≈ **146 Mo**.
+- `/actuator/metrics/http.server.requests` après une dizaine d'appels : **COUNT = 14** requêtes traitées, **MAX = 0,099 s** pour la plus lente.
+- `/actuator/metrics/http.server.requests?tag=status:200` : ne garde que les réponses **200** ; même ordre de grandeur (**COUNT = 15**, la requête précédente vers `/actuator/metrics` ayant elle aussi été comptée).
+- `GET /actuator/loggers/com.skytrack.forecast` → `{"effectiveLevel":"INFO"}` ;
+  `POST` avec `{"configuredLevel":"DEBUG"}` → **204**, puis le niveau effectif devient **DEBUG**, sans redémarrage ;
+  `POST` avec `{"configuredLevel":null}` remet le niveau par défaut.
+
+### Captures
+
+| | |
+|---|---|
+| Eureka, service UP | ![Eureka UP](docs/captures/eureka-up.png) |
+| `/actuator/health` UP | ![health UP](docs/captures/health-up.png) |
+| `/actuator/health` DOWN (MongoDB arrêté) | ![health DOWN](docs/captures/health-down.png) |
+| Eureka, service DOWN | ![Eureka DOWN](docs/captures/eureka-down.png) |
+| `/actuator/info` | ![info](docs/captures/info.png) |
+| `/actuator/metrics/http.server.requests` | ![metrics](docs/captures/metrics.png) |
+
+### Équipe SkyTrack
+
+Med Dhia Allagui (Forecast) · Yasmine Fehri (Alert & Notification) · Ahmed Bouallegue (User) · Abdallah Grissa (Analytics & Preferences) · Yassine Wesslati (IoT Sensor) · Salim Khaldi (Location)

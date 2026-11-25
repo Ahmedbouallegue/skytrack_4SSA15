@@ -121,11 +121,20 @@ Protection par **timeout** (2 s) et **circuit breaker** (Resilience4j) sur le cl
 
 Prérequis : Java 17, Maven 3.9+, MongoDB sur `localhost:27017`.
 
-```bash
-cd Backend/forecast-service
-mvn spring-boot:run
-```
+Ordre de démarrage :
 
-Le service démarre sur `http://localhost:8082`.
+1. **MongoDB** sur `localhost:27017`.
+2. **Eureka Server** ([`Backend/eureka-server`](../eureka-server/README.md)) :
+   ```bash
+   cd Backend/eureka-server
+   mvn spring-boot:run
+   ```
+3. **Forecast Service** :
+   ```bash
+   cd Backend/forecast-service
+   mvn spring-boot:run
+   ```
+
+Le service démarre sur `http://localhost:8082` et s'enregistre dans Eureka sous le nom `FORECAST-SERVICE` (visible sur http://localhost:8761).
 
 > État actuel (validation 1) : projet créé, entités et configuration en place, le service compile et démarre. La logique métier (repository, service, contrôleur, client Feign) sera développée après la validation de la conception.

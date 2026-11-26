@@ -1,0 +1,3 @@
+com\skytrack\alertnotification\controller\AlertControllerTest.class
+com\skytrack\alertnotification\service\NotificationServiceTest.class
+com\skytrack\alertnotification\service\AlertServiceTest.class

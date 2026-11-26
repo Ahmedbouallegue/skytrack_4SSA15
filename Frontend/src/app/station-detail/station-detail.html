@@ -1,0 +1,45 @@
+<app-shell>
+  <div class="page">
+    <a class="back-link" routerLink="/">← Back to overview</a>
+    <div class="error-banner" *ngIf="error">{{ error }}</div>
+    <section class="detail-heading" *ngIf="station">
+      <div>
+        <p class="kicker">STATION / {{ station.id }}</p>
+        <h1>{{ station.name }}</h1>
+        <p class="subheading">City {{ station.cityId }} · Sensor node monitoring</p>
+      </div>
+      <span class="registered"><i></i> Connected</span>
+    </section>
+
+    <section class="reading-grid" *ngIf="station">
+      <article class="temperature-card">
+        <div class="card-label">LATEST TEMPERATURE <span>LIVE</span></div>
+        <div class="temperature">{{ latest?.temperature ?? '—' }}<sup>°C</sup></div>
+        <p>{{ latest ? formatDate(latest.timestamp) : 'Waiting for first measurement' }}</p>
+        <div class="weather-line"><span>◒</span> Sensor measurement</div>
+      </article>
+      <article class="info-card">
+        <div class="card-label">STATION DETAILS</div>
+        <dl><dt>Station ID</dt><dd>{{ station.id }}</dd><dt>City reference</dt><dd>{{ station.cityId }}</dd><dt>Storage</dt><dd>InfluxDB · sensor_measurement</dd></dl>
+      </article>
+      <article class="ingest-card" id="ingest">
+        <div class="card-label">SEND A READING</div>
+        <p>Simulate a weather station payload.</p>
+        <div class="input-row"><input type="number" [(ngModel)]="form.temperature" min="-90" max="60" step=".1"><span>°C</span><button class="send-button" [disabled]="sending" (click)="sendMeasurement()">{{ sending ? '...' : 'Send' }}</button></div>
+      </article>
+    </section>
+
+    <section class="data-section" *ngIf="station">
+      <div class="section-heading"><div><p class="kicker">TIME SERIES</p><h2>Recent measurements</h2></div><div class="range-tabs"><button [class.selected]="range === '24h'" (click)="range = '24h'; refreshReadings()">24 hours</button><button [class.selected]="range === '7d'" (click)="range = '7d'; refreshReadings()">7 days</button></div></div>
+      <div class="data-layout">
+        <div class="table-card">
+          <div class="table-head"><span>Timestamp</span><span>Temperature</span><span>Station</span></div>
+          <div class="table-row" *ngFor="let reading of readings"><span>{{ formatDate(reading.timestamp) }}</span><strong>{{ reading.temperature | number:'1.1-1' }} °C</strong><span class="tag">{{ reading.stationId }}</span></div>
+          <div class="table-empty" *ngIf="!loading && !readings.length">No measurements in this range.</div>
+          <div class="table-loading" *ngIf="loading">Loading readings...</div>
+        </div>
+        <div class="stats-card"><div class="card-label">WINDOW STATS <span>1H</span></div><div class="stat-row" *ngFor="let stat of statistics | slice:-4"><span>{{ formatDate(stat.windowStart) }}</span><strong>{{ stat.temperatureMean | number:'1.1-1' }}°</strong><small>min {{ stat.temperatureMin | number:'1.0-1' }} · max {{ stat.temperatureMax | number:'1.0-1' }}</small></div><p *ngIf="!statistics.length" class="no-stats">Statistics will appear as measurements arrive.</p></div>
+      </div>
+    </section>
+  </div>
+</app-shell>

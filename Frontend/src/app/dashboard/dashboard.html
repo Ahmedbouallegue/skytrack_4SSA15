@@ -1,0 +1,70 @@
+<app-shell>
+  <div class="page">
+    <section class="welcome">
+      <div>
+        <p class="kicker">IoT SENSOR NETWORK</p>
+        <h1>Good morning, Ahmed <span>✦</span></h1>
+        <p class="subheading">A clear view of your connected weather stations.</p>
+      </div>
+      <button class="primary-button" (click)="showCreate = true"><span>+</span> Add station</button>
+    </section>
+
+    <div class="error-banner" *ngIf="error">{{ error }} <button (click)="error = ''">×</button></div>
+
+    <section class="metric-grid">
+      <article class="metric-card">
+        <div class="metric-icon teal">⌁</div>
+        <div><p>Connected stations</p><strong>{{ stations.length }}</strong><small>managed in this service</small></div>
+        <span class="trend">LIVE</span>
+      </article>
+      <article class="metric-card">
+        <div class="metric-icon blue">◌</div>
+        <div><p>Data source</p><strong>InfluxDB</strong><small>time-series storage</small></div>
+        <span class="trend neutral">8086</span>
+      </article>
+      <article class="metric-card">
+        <div class="metric-icon purple">◷</div>
+        <div><p>Refresh window</p><strong>24h</strong><small>default history range</small></div>
+        <span class="trend neutral">UTC</span>
+      </article>
+    </section>
+
+    <section class="section-heading" id="stations">
+      <div><div><p class="kicker">YOUR NETWORK</p><h2>Weather stations</h2></div><span class="count">{{ stations.length }} total</span></div>
+      <div class="filters">
+        <input type="number" placeholder="Filter by city ID" [(ngModel)]="cityFilter" (keyup.enter)="loadStations()">
+        <button class="ghost-button" (click)="cityFilter = undefined; loadStations()">Refresh ↻</button>
+      </div>
+    </section>
+
+    <div class="loading" *ngIf="loading"><span></span><span></span><span></span> Loading station network...</div>
+    <div class="empty" *ngIf="!loading && stations.length === 0">
+      <div class="empty-icon">⌁</div><h3>No stations yet</h3><p>Create your first station to start receiving weather data.</p>
+      <button class="primary-button" (click)="showCreate = true">Add your first station</button>
+    </div>
+    <section class="station-grid" *ngIf="!loading && stations.length">
+      <article class="station-card" *ngFor="let station of stations">
+        <div class="station-top"><span class="station-symbol">⌁</span><span class="online"><i></i> registered</span></div>
+        <p class="station-id">{{ station.id }}</p>
+        <h3>{{ station.name }}</h3>
+        <div class="station-meta"><span>◉ City {{ station.cityId }}</span><span>Sensor node</span></div>
+        <div class="station-actions">
+          <a class="view-link" [routerLink]="['/stations', station.id]">View readings <span>→</span></a>
+          <button class="delete-button" title="Delete station" (click)="removeStation(station)">×</button>
+        </div>
+      </article>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" *ngIf="showCreate" (click)="showCreate = false">
+    <section class="modal" (click)="$event.stopPropagation()">
+      <button class="modal-close" (click)="showCreate = false">×</button>
+      <p class="kicker">NEW SENSOR NODE</p><h2>Add a station</h2>
+      <p class="modal-intro">Register a weather station before it begins sending measurements.</p>
+      <label>Station ID<input [(ngModel)]="form.id" placeholder="ST-004" maxlength="40"></label>
+      <label>Station name<input [(ngModel)]="form.name" placeholder="Tunis South"></label>
+      <label>City ID<input type="number" [(ngModel)]="form.cityId" min="1"></label>
+      <button class="primary-button full" [disabled]="saving" (click)="createStation()">{{ saving ? 'Saving...' : 'Create station' }}</button>
+    </section>
+  </div>
+</app-shell>

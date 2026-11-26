@@ -1,0 +1,30 @@
+# Alert & Notification Service + its own MongoDB instance.
+#   Only the database:   docker compose up -d alert-mongodb   (then run the app from the IDE / ./mvnw)
+#   Database + service:  docker compose up -d --build
+services:
+  alert-mongodb:
+    image: mongo:7
+    container_name: skytrack-alert-mongodb
+    ports:
+      - "27018:27017"   # host port 27018 (see README), container keeps the default port
+    volumes:
+      - alert-mongo-data:/data/db
+
+  alert-notification-service:
+    build: .
+    container_name: skytrack-alert-notification-service
+    depends_on:
+      - alert-mongodb
+    ports:
+      - "8083:8083"
+    environment:
+      MONGODB_URI: mongodb://alert-mongodb:27017/skytrack_alerts
+      # Other services run on the host machine during development
+      LOCATION_SERVICE_URL: http://host.docker.internal:8081
+      USER_SERVICE_URL: http://host.docker.internal:8080
+      REMOTE_CHECKS_ENABLED: "true"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  alert-mongo-data:

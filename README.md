@@ -1,162 +1,194 @@
-# SkyTrack
+# SkyTrack workspace
 
-## 🎯 Objectif du projet
+This repository currently contains an Angular frontend, the IoT Sensor Spring
+Boot service, and a Eureka discovery server. The other services in the original
+SkyTrack architecture are not present in this workspace; this README describes
+only code that exists here.
 
-**SkyTrack** est une plateforme moderne de gestion, de surveillance et d'analyse météorologique. Elle repose sur une **architecture microservices** : le système est découpé en **6 services indépendants** (un par membre de l'équipe). Chaque service possède sa propre base de données (PostgreSQL, MongoDB ou InfluxDB) et communique avec les autres via des appels REST (OpenFeign) en échangeant uniquement des identifiants logiques.
+> **Assignment material:** `Atelier_Eureka_server_Part1.pdf` was not found in
+> the workspace, so the PDF itself could not be inspected.
 
-## 🛠️ Stack technique
+## Architecture
 
-| Couche | Technologie |
-|---|---|
-| **Frontend** | Angular 21 |
-| **Backend – User Service** | .NET (ASP.NET Core Web API) |
-| **Backend – 5 autres microservices** | Spring Boot (Java) + Spring Cloud OpenFeign |
-| **Bases de données** | PostgreSQL, MongoDB, InfluxDB |
-| **Communication** | REST (JSON) ; OpenFeign côté Spring Boot, `HttpClient` côté .NET |
-
-> Le User Service est le seul microservice développé en **.NET**. Comme tous les services communiquent en **REST/JSON**, les services Spring Boot l'appellent via OpenFeign exactement comme n'importe quel autre service : le langage d'implémentation reste transparent pour les autres.
-
-## 🔌 Ports des microservices et des bases de données
-
-| # | Microservice | Technologie | Port du service (API) | Base de données | Port de la BD |
-|---|---|---|---|---|---|
-| 1 | User Service | .NET | `8080` | PostgreSQL | `5432` |
-| 2 | Location Service | Spring Boot | `8081` | PostgreSQL | `5433` |
-| 3 | Forecast Service | Spring Boot | `8082` | MongoDB | `27017` |
-| 4 | Alert & Notification Service | Spring Boot | `8083` | MongoDB | `27018` |
-| 5 | IoT Sensor Service | Spring Boot | `8084` | InfluxDB | `8086` |
-| 6 | Analytics & Preferences Service | Spring Boot | `8085` | InfluxDB (`HistoricalLog`) + MongoDB (`UserPreference`) | `8087` / `27019` |
-| – | Frontend (Angular 21) | Angular | `4200` | – | – |
-
-> ℹ️ Chaque service a **sa propre instance** de base. On garde les ports par défaut de chaque SGBD (PostgreSQL `5432`, MongoDB `27017`, InfluxDB `8086`) et on les incrémente quand deux services utilisent le même type de base. En Docker, les conteneurs écoutent tous sur le port par défaut et seul le port hôte change (ex. `5433:5432`).
-
-### 🧩 Pourquoi cette répartition ?
-
-- **Autonomie** : chaque membre développe sa propre brique sans perturber le code des autres.
-- **Diversité des technologies** : le projet met en pratique trois paradigmes de bases de données très recherchés en entreprise, chacun choisi selon la nature des données :
-  - **PostgreSQL** (SQL relationnel) pour les données transactionnelles et structurées, avec relations : utilisateurs et rôles, villes et régions.
-  - **MongoDB** (NoSQL orienté documents) pour les données flexibles, semi-structurées et **modifiables** : prévisions, alertes et notifications (le statut lu / non lu d'une notification change dans le temps), préférences utilisateur.
-  - **InfluxDB** (Time-Series) pour les données **horodatées écrites en continu et rarement modifiées** : mesures des capteurs IoT, historiques climatiques agrégés.
-
-> **Pourquoi pas InfluxDB pour les alertes ou les préférences ?** InfluxDB est optimisé pour l'ajout massif de points horodatés, mais gère mal la modification des données et ne connaît pas les relations. Une notification dont le statut change, ou une préférence (°C / °F) qu'on lit et modifie, n'est pas une série temporelle : MongoDB est le bon choix.
-
-## 🔗 Analyse détaillée des relations entre les entités
-
-Dans une architecture microservices pure, il n'y a **pas de clés étrangères physiques** (`@ManyToOne`, `@OneToMany` avec contrainte SQL) entre des entités qui appartiennent à des microservices différents. Les relations se font de deux manières :
-
-- **Relations intra-services (physiques)** : à l'intérieur d'un même microservice, les entités sont directement reliées par des objets ou des identifiants.
-- **Relations inter-services (logiques)** : les microservices se parlent en échangeant uniquement des IDs (ex. `cityId`, `userId`) via des appels API.
-
-### 🔹 Microservice 1 : User Service (.NET · PostgreSQL · port 8080)
-
-**Entités :** `User` ↔ `Role`
-
-- **Relation physique (intra-service)** : un `User` possède un rôle principal (`Role`). C'est une relation **Many-to-One (N..1)**.
-- **Exemple** : l'utilisateur Ahmed a le rôle `ADMIN`. Techniquement, la table `user` contient une colonne `role_id` qui pointe vers la table `role`.
-
-### 🔹 Microservice 2 : Location Service (Spring Boot · PostgreSQL · port 8081)
-
-**Entités :** `City` ↔ `Region`
-
-- **Relation physique (intra-service)** : une `City` (ville) est rattachée à une `Region` (région ou gouvernorat). C'est une relation **Many-to-One (N..1)**.
-- **Exemple** : la ville de Tunis appartient à la région de Tunis / Grand Tunis. La table `city` possède une colonne `region_id`.
-
-### 🔹 Microservice 3 : Forecast Service (Spring Boot · MongoDB · port 8082)
-
-**Entités :** `Forecast` ↔ `WeatherDetail`
-
-- **Relation physique / composition (intra-service)** : un bulletin de prévision (`Forecast`) est étroitement lié à ses détails techniques atmosphériques (`WeatherDetail`). C'est une relation **One-to-One / composition (1..1)** : le `WeatherDetail` est un sous-document embarqué dans le document `Forecast`.
-- **Lien logique avec les autres services** : le `Forecast` possède un champ `cityId`. Il ne contient pas l'objet `City` en entier, mais seulement son ID (provenant du Location Service). Pour afficher la météo de Paris, le service récupère le `Forecast` grâce au `cityId = 5` puis va chercher le nom de la ville via une requête HTTP vers le Location Service.
-
-### 🔹 Microservice 4 : Alert & Notification Service (Spring Boot · MongoDB · port 8083)
-
-**Entités :** `Alert` ↔ `Notification`
-
-- **Relation physique (intra-service)** : une alerte climatique (`Alert`) déclenche l'envoi de plusieurs notifications aux utilisateurs concernés (`Notification`). C'est une relation **One-to-Many (1..\*)** : chaque document `Notification` contient l'`alertId` de son alerte.
-- **Statut modifiable** : une `Notification` possède un champ `read` (lu / non lu) mis à jour quand l'utilisateur la consulte, d'où le choix de MongoDB.
-- **Liens logiques inter-services** :
-  - L'`Alert` contient un `cityId` (pour savoir quelle ville est touchée, en lien avec le Location Service).
-  - La `Notification` contient un `userId` (pour savoir à quel utilisateur l'envoyer, en lien logique avec le User Service).
-
-### 🔹 Microservice 5 : IoT Sensor Service (Spring Boot · InfluxDB · port 8084)
-
-**Entités :** `Station` ↔ `SensorMeasurement`
-
-- **Relation temporelle (intra-service)** : une station météo physique (`Station`) envoie en continu des mesures de capteurs (`SensorMeasurement`). C'est une relation **One-to-Many (1..\*)** orientée flux temporel.
-- **Fonctionnement** : chaque mesure est un point InfluxDB composé d'un `timestamp`, d'un tag `stationId` et de champs (température, humidité, pluie). C'est le cas d'usage typique d'une base Time-Series : écriture massive, lecture par intervalle de temps, pas de modification.
-
-### 🔹 Microservice 6 : Analytics & Preferences Service (Spring Boot · InfluxDB + MongoDB · port 8085)
-
-**Entités :** `HistoricalLog` (analyses) et `UserPreference` (préférences)
-
-- **`HistoricalLog` → InfluxDB** : moyennes climatiques d'une ville calculées par période (jour, mois). Ce sont des données horodatées, ajoutées au fil du temps et jamais modifiées : c'est ce qui justifie InfluxDB pour ce service.
-- **`UserPreference` → MongoDB** : préférences d'affichage d'un utilisateur (ex. Celsius ou Fahrenheit, alertes activées). Elles ne sont pas horodatées et doivent pouvoir être lues et modifiées, elles sont donc stockées dans une collection MongoDB propre au service.
-- **Relations logiques (inter-services)** :
-  - `HistoricalLog` utilise un `cityId` (lien avec le Location Service).
-  - `UserPreference` utilise un `userId` (lien avec le User Service).
-
-## 🗺️ Schéma récapitulatif des flux
-
-Les flèches indiquent le **sens des appels REST** : le service à l'origine de la flèche appelle celui qui est pointé, jamais l'inverse.
-
-```
-[ Frontend Angular 21 :4200 ] ──REST──▶ chacun des 6 services (pas d'API Gateway)
-
-
-[ Forecast :8082 ]                 ──cityId──┐
-[ Alert & Notification :8083 ]     ──cityId──┼──▶ [ Location Service :8081 ]
-[ Analytics & Preferences :8085 ]  ──cityId──┘
-
-[ Alert & Notification :8083 ]     ──userId──┐
-[ Analytics & Preferences :8085 ]  ──userId──┴──▶ [ User Service :8080 (.NET) ]
-
-[ Stations météo ]  ──mesures──▶  [ IoT Sensor :8084 ]   (aucun appel vers les autres services)
+```mermaid
+flowchart LR
+    Browser[Browser] --> Frontend[Angular 21 :4200]
+    Frontend -->|REST JSON| IoT[IoT Sensor Service :8084]
+    IoT -->|measurements and station data| Influx[(InfluxDB 2.x :8086)]
+    IoT -->|registers and fetches registry| Eureka[Eureka Server :8761]
+    Eureka --> Dashboard[Eureka dashboard]
 ```
 
-| Service appelant | Service appelé | Identifiant échangé | Objectif |
-|---|---|---|---|
-| Forecast | Location | `cityId` | Afficher le nom de la ville d'une prévision |
-| Alert & Notification | Location | `cityId` | Connaître la ville touchée par une alerte |
-| Alert & Notification | User | `userId` | Retrouver l'utilisateur destinataire d'une notification |
-| Analytics & Preferences | Location | `cityId` | Associer un historique climatique à une ville |
-| Analytics & Preferences | User | `userId` | Vérifier l'utilisateur propriétaire des préférences |
-| IoT Sensor | – | – | Service autonome : reçoit et stocke les mesures des stations |
+The IoT service stores station metadata and measurements in InfluxDB. Eureka
+provides service discovery; it does not proxy API traffic.
 
-> Forecast et Analytics ne s'appellent pas entre eux : ils utilisent simplement tous les deux un `cityId` qui renvoie au Location Service.
+## Services and workspace status
 
-## ⚙️ Points techniques à respecter
+| Project | Present | Technology / versions | Default port | Entry point |
+|---|---|---|---:|---|
+| Eureka Server | Yes (added here) | Java 17, Spring Boot 4.0.10, Spring Cloud 2025.1.5, Maven JAR | 8761 | `com.example.eurekaserver.EurekaServerApplication` |
+| IoT Sensor Service | Yes | Java 21, Spring Boot 3.5.7, Spring Cloud 2025.0.5, Maven JAR | 8084 | `tn.esprit.skytrack.iotsensor.IoTSensorApplication` |
+| Frontend | Yes | Angular 21, TypeScript | 4200 | Angular application |
+| Candidat | No | Not available to inspect | — | — |
+| Job | No | Not available to inspect | — | — |
+| Meeting | No | Not available to inspect | — | — |
+| Notification | No | Not available to inspect | — | — |
 
-- **Type de `userId` commun** : le User Service est en .NET et les autres services en Java. L'identifiant `User.Id` est déclaré en `long` côté C#, ce qui correspond au `Long` utilisé côté Java (`userId`). Ne pas utiliser `int` ni `Guid` côté .NET, sinon les types ne correspondent plus.
-- **CORS** : il n'y a pas d'API Gateway, le frontend Angular (`http://localhost:4200`) appelle directement les 6 services. Chaque service doit donc autoriser l'origine `http://localhost:4200` :
-  - Spring Boot : `@CrossOrigin(origins = "http://localhost:4200")` ou une configuration `WebMvcConfigurer` globale.
-  - .NET : `builder.Services.AddCors(...)` puis `app.UseCors(...)` avec la même origine.
+No Candidat, Job, Meeting, or Notification project, endpoint, dependency
+manifest, or runtime behavior was found. No hello endpoint is claimed for those
+services. The requested Candidat/Job two-instance commands and Meeting and
+Notification integration cannot be supplied until those projects are provided.
 
-## 💡 En résumé pour la soutenance / présentation
+The IoT service did not previously have Spring Cloud dependencies. Spring
+Cloud 2025.1.x aligns with Spring Boot 4.0.x, while Spring Cloud 2025.0.x
+aligns with Spring Boot 3.5.x. The new Eureka server uses the requested
+Boot 4.0.10 / Cloud 2025.1.5 combination. IoT remains on its existing Boot
+3.5.7 / Java 21 versions and uses Cloud 2025.0.5 for its Eureka client; it was
+not upgraded to an incompatible release train.
 
-> **Question :** « Comment le service de prévision sait-il à quelle ville il appartient s'il n'y a pas de clé étrangère SQL ? »
->
-> **Réponse type :** « Nos microservices sont totalement découplés pour garantir l'indépendance des bases de données. Le document MongoDB `Forecast` stocke uniquement l'attribut `cityId`. Pour afficher le nom complet de la ville, notre microservice effectue un appel REST synchrone (via Spring Cloud OpenFeign) vers le Location Service en utilisant cet ID. »
+## Project structure
 
-> **Question :** « Pourquoi avoir choisi InfluxDB pour certains services seulement ? »
->
-> **Réponse type :** « Nous avons choisi chaque base selon la nature des données. InfluxDB sert aux données horodatées écrites en continu et jamais modifiées : les mesures des capteurs IoT et les historiques climatiques. Les notifications, dont le statut change, et les préférences, qu'on lit et modifie, sont dans MongoDB. Les données structurées avec relations (utilisateurs, villes) sont dans PostgreSQL. »
-
-## Structure du projet
-
-```
-skytrack/
-├── Backend/              # Microservices (User Service en .NET, les 5 autres en Spring Boot)
-├── Frontend/             # Interface utilisateur (Angular 21)
-├── Documentation/
-│   ├── Presentation/     # Supports de présentation
-│   └── Diagrams/         # Diagrammes (UML, architecture, etc.)
-└── README.md
+```text
+Backend/
+├── eureka-server/                 # Spring Cloud Netflix Eureka Server
+└── iot-sensor-service/             # Spring Boot API, InfluxDB, Docker Compose
+Frontend/                            # Angular 21 client for the IoT API
+Documentation/                       # Existing project documentation
+README.md
 ```
 
-## Installation
+## Prerequisites
 
-_À compléter._
+- JDK 17 for Eureka and JDK 21 for the IoT service
+- Maven 3.9+
+- Docker Desktop with Docker Compose (for InfluxDB and the composed backend)
+- Node.js and npm (for the Angular frontend)
 
-## Utilisation
+## Build and run
 
-_À compléter._
+Run each command in its own PowerShell terminal. Maven downloads declared
+dependencies on the first build.
+
+### Eureka Server
+
+```powershell
+cd Backend\eureka-server
+mvn clean package
+java -jar target\eureka-server-0.0.1-SNAPSHOT.jar
+```
+
+The dashboard is at <http://localhost:8761>. The port can be overridden with
+standard Spring Boot configuration, for example:
+
+```powershell
+java -jar target\eureka-server-0.0.1-SNAPSHOT.jar --server.port=8762
+```
+
+### IoT Sensor Service
+
+For local development, start Eureka first, then start InfluxDB and the service.
+Set a non-empty InfluxDB token for the local Compose database:
+
+```powershell
+cd Backend\iot-sensor-service
+$env:INFLUX_TOKEN = "replace-with-a-long-random-token"
+docker compose up -d influxdb
+mvn clean package
+mvn spring-boot:run
+```
+
+The API listens on <http://localhost:8084/api>; the existing frontend uses this
+base URL. Existing API examples and routes are documented in
+[Backend/iot-sensor-service/README.md](Backend/iot-sensor-service/README.md).
+The service also exposes Swagger UI at
+<http://localhost:8084/swagger-ui.html> and health at
+<http://localhost:8084/actuator/health>. No `/api/.../hello` route exists in
+this service.
+
+Configuration:
+
+| Setting | Default | Purpose |
+|---|---|---|
+| `SERVER_PORT` | `8084` | IoT HTTP port |
+| `EUREKA_CLIENT_SERVICE_URL_DEFAULT_ZONE` | `http://localhost:8761/eureka/` | Eureka registry URL |
+| `INFLUX_URL` | `http://localhost:8086` | InfluxDB URL |
+| `INFLUX_ORG` | `skytrack` | InfluxDB organization |
+| `INFLUX_BUCKET` | `iot_sensor` | InfluxDB bucket |
+| `INFLUX_TOKEN` | empty | InfluxDB access token |
+
+To run a second IoT instance, use another terminal and port; both instances
+register independently as `iot-sensor-service`:
+
+```powershell
+cd Backend\iot-sensor-service
+$env:SERVER_PORT = "8085"
+$env:EUREKA_CLIENT_SERVICE_URL_DEFAULT_ZONE = "http://localhost:8761/eureka/"
+mvn spring-boot:run
+```
+
+For a containerized backend, package both JARs first, then launch the Eureka
+server, IoT service, and InfluxDB together:
+
+```powershell
+cd Backend\eureka-server
+mvn clean package
+cd ..\iot-sensor-service
+mvn clean package
+$env:INFLUX_TOKEN = "replace-with-a-long-random-token"
+docker compose up --build
+```
+
+Compose gives the IoT container the internal registry address
+`http://eureka-server:8761/eureka/`; the host dashboard remains at
+<http://localhost:8761>.
+
+### Angular frontend
+
+```powershell
+cd Frontend
+npm install
+npm start
+```
+
+The development server is <http://localhost:4200>. Its current environment
+points to the IoT API at `http://localhost:8084/api`.
+
+## Eureka registration
+
+- Dashboard: <http://localhost:8761>
+- Eureka REST registry: <http://localhost:8761/eureka/apps>
+- Existing registered application: `iot-sensor-service` (port 8084 by default;
+  another instance can use 8085)
+- Eureka server itself does not register with or fetch from its own registry.
+
+## Troubleshooting
+
+- **Maven or Java not found:** install Maven 3.9+ and the JDK version required
+  for the specific project, then check `mvn -version` and `java -version`.
+- **No service appears in Eureka:** start Eureka first, confirm the configured
+  URL is reachable, and allow the client time to register. In Compose, use the
+  service hostname `eureka-server`, not `localhost`.
+- **IoT service fails to connect to InfluxDB:** make sure InfluxDB is running
+  and `INFLUX_TOKEN`, organization, bucket, and URL match its initialization.
+- **Port already in use:** set `SERVER_PORT` for the IoT service or pass
+  `--server.port=<port>` to the Eureka JAR. Ensure the selected port is free.
+- **Frontend cannot reach the API:** start IoT on port 8084 or update the
+  frontend environment URL to match the chosen port.
+
+## Verification checklist
+
+- [ ] `mvn clean package` succeeds in `Backend\eureka-server`.
+- [ ] `mvn clean package` succeeds in `Backend\iot-sensor-service`.
+- [ ] Eureka dashboard opens at <http://localhost:8761>.
+- [ ] `iot-sensor-service` appears in the Eureka application registry.
+- [ ] IoT API health responds at <http://localhost:8084/actuator/health>.
+- [ ] A second IoT instance can run on port 8085 and register separately.
+- [ ] Angular opens at <http://localhost:4200> and can reach the IoT API.
+
+## Dashboard screenshot
+
+<!-- TODO: Add a screenshot of the running Eureka dashboard and registered applications. -->
+
+## Team member
+
+- yassinewesslati

@@ -1,4 +1,10 @@
 services:
+  eureka-server:
+    build:
+      context: ../eureka-server
+    ports:
+      - "8761:8761"
+
   influxdb:
     image: influxdb:2.7
     ports:
@@ -20,8 +26,10 @@ services:
       - "8084:8084"
     depends_on:
       - influxdb
+      - eureka-server
     environment:
       SERVER_PORT: 8084
+      EUREKA_CLIENT_SERVICE_URL_DEFAULT_ZONE: http://eureka-server:8761/eureka/
       INFLUX_URL: http://influxdb:8086
       INFLUX_ORG: ${INFLUX_ORG:-skytrack}
       INFLUX_BUCKET: ${INFLUX_BUCKET:-iot_sensor}

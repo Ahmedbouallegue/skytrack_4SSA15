@@ -1,8 +1,8 @@
 # SkyTrack IoT Sensor Service
 
-Autonomous Spring Boot 3 / Java 21 microservice for weather stations and
-write-heavy sensor measurements. It stores both station metadata and
-measurements in InfluxDB 2.x and does not call any other microservice.
+Spring Boot 3 / Java 21 microservice for weather stations and write-heavy
+sensor measurements. It stores both station metadata and measurements in
+InfluxDB 2.x and registers itself with the Eureka server.
 
 ## Project tree
 
@@ -29,7 +29,9 @@ iot-sensor-service/
 
 ## Run locally
 
-Requirements: Java 21, Maven 3.9+, and Docker.
+Requirements: Java 21, Maven 3.9+, Docker, and the Eureka server running on
+port 8761. The Eureka client uses Spring Cloud 2025.0.5, which is compatible
+with the project's existing Spring Boot 3.5.7 version.
 
 Set a token before starting InfluxDB:
 
@@ -38,6 +40,18 @@ $env:INFLUX_TOKEN = "replace-with-a-long-random-token"
 docker compose up -d influxdb
 mvn spring-boot:run
 ```
+
+For a second instance, use another terminal and a different port:
+
+```powershell
+$env:SERVER_PORT = "8085"
+$env:EUREKA_CLIENT_SERVICE_URL_DEFAULT_ZONE = "http://localhost:8761/eureka/"
+mvn spring-boot:run
+```
+
+Both instances register under `iot-sensor-service`. `SERVER_PORT` can be set
+back to `8084` for the default instance. The registry URL can be changed with
+`EUREKA_CLIENT_SERVICE_URL_DEFAULT_ZONE`.
 
 The API listens on `http://localhost:8084`, Swagger UI is at
 `http://localhost:8084/swagger-ui.html`, and the health endpoint is at
@@ -56,6 +70,7 @@ docker compose up --build
 | Variable | Default | Description |
 |---|---|---|
 | `SERVER_PORT` | `8084` | HTTP port |
+| `EUREKA_CLIENT_SERVICE_URL_DEFAULT_ZONE` | `http://localhost:8761/eureka/` | Eureka registry URL |
 | `INFLUX_URL` | `http://localhost:8086` | InfluxDB URL |
 | `INFLUX_ORG` | `skytrack` | Influx organization |
 | `INFLUX_BUCKET` | `iot_sensor` | Influx bucket |
@@ -167,8 +182,8 @@ sequenceDiagram
     API-->>F: 200 JSON list
 ```
 
-The service is autonomous: it never calls Location or User. `cityId` is stored
-as an ID only, and Analytics or another service may call this API later.
+The service does not call Location or User. `cityId` is stored as an ID only.
+Eureka registration adds discovery metadata and does not change API behavior.
 
 ## API contract
 
